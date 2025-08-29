@@ -45,6 +45,30 @@ def view(id, repo):
 
 @main.command()
 @click.option('--barcode', help="Top container barcode string")
+@click.option('--type', default="box", help="Container type")
+@click.option('--indicator', required=True, help="Container indicator")
+@click.option('--profile', help="Container profile number")
+@click.option('--repo', default="2", help="Repository number")
+def kreate(barcode, type, indicator, profile, repo):
+    top_container_json = {"type": type, "indicator": indicator, "jsonmodel_type": "top_container",
+                          "active_restrictions": []}
+    if barcode:
+        top_container_json['barcode'] = barcode
+    if profile:
+        top_container_json['container_profile'] = {"ref": f"/container_profiles/{profile}"}
+
+    dum = client.post(f'/repositories/{repo}/top_containers', json=top_container_json)
+    dum_json = json.loads(dum.text)
+    print(json.dumps(dum_json, indent=2))
+
+    if dum_json["status"] != "Created":
+        exit(1)
+
+    container_uri = dum_json['uri']
+
+
+@main.command()
+@click.option('--barcode', help="Top container barcode string")
 @click.option('--ctype', default="box", help="Container type")
 @click.option('--indicator', required=True, help="Container indicator")
 @click.option('--profile', help="Container profile number")
