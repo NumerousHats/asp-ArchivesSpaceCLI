@@ -8,3 +8,11 @@ dependencies = [
     "archivessnake>=0.10.1",
     "click>=8.2.1",
 ]
+
+[project.scripts]
+ascli = "ascli.main:main"
+ascli-containers = "ascli.containers:main"
+ascli-resources = "ascli.resources:main"
+
+[tool.uv]
+package = true
