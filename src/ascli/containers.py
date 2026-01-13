@@ -13,7 +13,8 @@ def temp(container_id, repo):
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 
-def view(id, repo):
+
+def get(id, repo):
     out = client.get(f'/repositories/{repo}/top_containers/{id}')
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
