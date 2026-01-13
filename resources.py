@@ -11,16 +11,16 @@ client.authorize()
 aspace = ASpace()
 
 instances_template = {
-      "instance_type": "mixed_materials",
-      "jsonmodel_type": "instance",
-      "is_representative": False,
-      "sub_container": {
+    "instance_type": "mixed_materials",
+    "jsonmodel_type": "instance",
+    "is_representative": False,
+    "sub_container": {
         "jsonmodel_type": "sub_container",
         "top_container": {
           "ref": "/repositories/3/top_containers/975"
         }
-      }
     }
+}
 
 
 @click.group()
@@ -56,7 +56,7 @@ def add_instance(container_id, ao_id, repo, itype, resource, type2, indicator2, 
 
        CONTAINER_ID is the container identifier to be added and AO_ID is the identifier of the Archival Object
        to which the instance should be added, unless the '--resource' flag is present. In that case, the instance
-       will be added to the top level of the resource with the identifier AO_ID.
+       will be added to the top level of the resource with identifier AO_ID.
     """
     instance_json = copy.deepcopy(instances_template)
     instance_json['sub_container']['top_container']['ref'] = f"/repositories/{repo}/top_containers/{container_id}"
