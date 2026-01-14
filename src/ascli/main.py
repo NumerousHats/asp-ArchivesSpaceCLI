@@ -3,11 +3,12 @@ import ascli.containers as containers
 import ascli.resources as resources
 
 app = App()
-container = app.command(App(name="container"))
-resource = app.command(App(name="resource"))
+container_cmd = app.command(App(name="container"))
+resource_cmd = app.command(App(name="resource"))
 
-@container.command(name="view")
-def container_view(id: int, repo: int = 2):
+
+@container_cmd.default
+def container_get(id: int, repo: int = 2):
     """Get container information.
 
     Parameters
@@ -17,9 +18,23 @@ def container_view(id: int, repo: int = 2):
     repo: int
         The repository ID number.
     """
-    print(f"viewing container {id}")
+    containers.get(id, repo)
 
-@container.command(name="create")
+@container_cmd.command(name="get")
+def container_get(id: int, repo: int = 2):
+    """Get container information.
+
+    Parameters
+    ----------
+    id: int
+        The container ID number.
+    repo: int
+        The repository ID number.
+    """
+    containers.get(id, repo)
+
+
+@container_cmd.command(name="create")
 def container_create(barcode:str, ctype: str, indicator: str, profile: int, repo: int = 2):
     """Create a container.
 
@@ -39,7 +54,8 @@ def container_create(barcode:str, ctype: str, indicator: str, profile: int, repo
 
     print("container create")
 
-@container.command(name="edit")
+
+@container_cmd.command(name="edit")
 def container_edit(container_id: int, barcode:str=None, ctype: str=None, indicator: str=None, profile: int=None,
                    repo: int = 2):
     """Create a container.
@@ -65,6 +81,7 @@ def container_edit(container_id: int, barcode:str=None, ctype: str=None, indicat
 
 def main():
     app()
+
 
 if __name__ == "__main__":
     main()
