@@ -7,19 +7,6 @@ container_cmd = app.command(App(name="container"))
 resource_cmd = app.command(App(name="resource"))
 
 
-@container_cmd.default
-def container_get(id: int, repo: int = 2):
-    """Get container information.
-
-    Parameters
-    ----------
-    id: int
-        The container ID number.
-    repo: int
-        The repository ID number.
-    """
-    containers.get(id, repo)
-
 @container_cmd.command(name="get")
 def container_get(id: int, repo: int = 2):
     """Get container information.
