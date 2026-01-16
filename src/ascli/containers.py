@@ -2,13 +2,13 @@ import json
 import ascli.config as config
 
 def temp(container_id, repo):
-    out = config.client.get(f'/repositories/{repo}/archival_objects/{container_id}')
+    out = config.get(f'/repositories/{repo}/archival_objects/{container_id}')
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 
 
 def get(id, repo):
-    out = config.client.get(f'/repositories/{repo}/top_containers/{id}')
+    out = config.get(f'/repositories/{repo}/top_containers/{id}')
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 
@@ -21,7 +21,7 @@ def create(barcode, type, indicator, profile, repo):
     if profile:
         top_container_json['container_profile'] = {"ref": f"/container_profiles/{profile}"}
 
-    out = config.client.post(f'/repositories/{repo}/top_containers', json=top_container_json)
+    out = config.post(f'/repositories/{repo}/top_containers', json=top_container_json)
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 
@@ -32,7 +32,7 @@ def create(barcode, type, indicator, profile, repo):
 
 
 def edit(container_id, barcode, ctype, profile, repo, indicator):
-    out = config.client.get(f'/repositories/{repo}/top_containers/{container_id}')
+    out = config.get(f'/repositories/{repo}/top_containers/{container_id}')
     top_container_json = json.loads(out.text)
     if profile:
         top_container_json['container_profile'] = {'ref': f'/container_profiles/{profile}'}
@@ -43,7 +43,7 @@ def edit(container_id, barcode, ctype, profile, repo, indicator):
     if indicator:
         top_container_json['indicator'] = indicator
 
-    out = config.client.post(f'/repositories/{repo}/top_containers/{container_id}', json=top_container_json)
+    out = config.post(f'/repositories/{repo}/top_containers/{container_id}', json=top_container_json)
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 
