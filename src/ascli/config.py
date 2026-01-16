@@ -1,8 +1,16 @@
 import shelve
+from pathlib import Path
 
+import platformdirs
 from asnake.client import ASnakeClient
 
-shelf = shelve.open("test")
+datadir = Path(platformdirs.user_data_dir('ascli'))
+shelf_file = datadir / 'persistence.dat'
+
+if not datadir.is_dir():
+    Path(datadir).mkdir(parents=True, exist_ok=True)
+
+shelf = shelve.open(shelf_file)
 
 if 'token' in shelf:
     client = ASnakeClient(username=None, password=None, session_token=shelf['token'])

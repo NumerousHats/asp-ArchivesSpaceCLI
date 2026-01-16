@@ -8,6 +8,7 @@ dependencies = [
     "archivessnake>=0.10.1",
     "click>=8.2.1",
     "cyclopts==4.4.5",
+    "platformdirs>=4.5.1",
 ]
 
 [project.scripts]
