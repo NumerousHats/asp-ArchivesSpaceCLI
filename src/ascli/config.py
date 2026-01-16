@@ -1,18 +1,17 @@
-import pickle
-from pathlib import Path
+import shelve
 
 from asnake.client import ASnakeClient
-from asnake.aspace import ASpace
 
+shelf = shelve.open("test")
 
-if Path("asnakeclient.pkl").exists():
-    print("auth cache hit")
-    with open('asnakeclient.pkl', 'rb') as file:
-        client = pickle.load(file)
+if 'token' in shelf:
+    client = ASnakeClient(username=None, password=None, session_token=shelf['token'])
+    client.authorize()
 else:
-    print("auth cache miss")
     client = ASnakeClient()
     client.authorize()
+    shelf['token'] = client.session.headers[client.config['session_header_name']]
 
-    with open('asnakeclient.pkl', 'wb') as file:
-        pickle.dump(client, file)
+shelf.close()
+
+
