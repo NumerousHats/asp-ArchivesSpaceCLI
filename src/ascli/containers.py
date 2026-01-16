@@ -1,21 +1,14 @@
 import json
-
-from asnake.client import ASnakeClient
-from asnake.aspace import ASpace
-
-# validate ASnake client
-client = ASnakeClient()
-client.authorize()
-aspace = ASpace()
+import ascli.config as config
 
 def temp(container_id, repo):
-    out = client.get(f'/repositories/{repo}/archival_objects/{container_id}')
+    out = config.client.get(f'/repositories/{repo}/archival_objects/{container_id}')
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 
 
 def get(id, repo):
-    out = client.get(f'/repositories/{repo}/top_containers/{id}')
+    out = config.client.get(f'/repositories/{repo}/top_containers/{id}')
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 
@@ -28,7 +21,7 @@ def create(barcode, type, indicator, profile, repo):
     if profile:
         top_container_json['container_profile'] = {"ref": f"/container_profiles/{profile}"}
 
-    out = client.post(f'/repositories/{repo}/top_containers', json=top_container_json)
+    out = config.client.post(f'/repositories/{repo}/top_containers', json=top_container_json)
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 
@@ -39,7 +32,7 @@ def create(barcode, type, indicator, profile, repo):
 
 
 def edit(container_id, barcode, ctype, profile, repo, indicator):
-    out = client.get(f'/repositories/{repo}/top_containers/{container_id}')
+    out = config.client.get(f'/repositories/{repo}/top_containers/{container_id}')
     top_container_json = json.loads(out.text)
     if profile:
         top_container_json['container_profile'] = {'ref': f'/container_profiles/{profile}'}
@@ -50,6 +43,9 @@ def edit(container_id, barcode, ctype, profile, repo, indicator):
     if indicator:
         top_container_json['indicator'] = indicator
 
-    out = client.post(f'/repositories/{repo}/top_containers/{container_id}', json=top_container_json)
+    out = config.client.post(f'/repositories/{repo}/top_containers/{container_id}', json=top_container_json)
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
+
+if __name__ == "__main__":
+    get(111, 2)

@@ -1,14 +1,9 @@
 import copy
 import json
+import ascli.config as config
 
-from asnake.client import ASnakeClient
-from asnake.aspace import ASpace
 import click
 
-# validate ASnake client
-client = ASnakeClient()
-client.authorize()
-aspace = ASpace()
 
 instances_template = {
     "instance_type": "mixed_materials",
@@ -34,7 +29,7 @@ def main():
 def get_json(id, repo):
     """Get JSON representation of resource specified by ID."""
 
-    dum = client.get(f'/repositories/{repo}/resources/{id}')
+    dum = config.client.get(f'/repositories/{repo}/resources/{id}')
     dum_json = json.loads(dum.text)
     print(json.dumps(dum_json, indent=2))
 
@@ -77,14 +72,14 @@ def add_instance(container_id, ao_id, repo, itype, resource, type2, indicator2, 
     else:
         endpoint = "archival_objects"
 
-    dum = client.get(f'/repositories/{repo}/{endpoint}/{ao_id}')
+    dum = config.client.get(f'/repositories/{repo}/{endpoint}/{ao_id}')
     dum_json = json.loads(dum.text)
     if dum_json.get('instances') and type(dum_json['instances']) is list:
         dum_json['instances'].append(instance_json)
     else:
         dum_json['instances'] = [instance_json]
 
-    dum = client.post(f'/repositories/{repo}/{endpoint}/{ao_id}', json=dum_json)
+    dum = config.client.post(f'/repositories/{repo}/{endpoint}/{ao_id}', json=dum_json)
     dum_json = json.loads(dum.text)
     print(json.dumps(dum_json, indent=2))
 

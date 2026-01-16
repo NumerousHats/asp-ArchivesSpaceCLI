@@ -20,14 +20,13 @@ Resources
 ### High priority
 
 Repositories
-- `ascli (repository|repo)` Show information on the current default repository
+- `ascli (repository|repo) info` Show information on the current default repository
 - `ascli (repository|repo) list` List all available repositories
 - `ascli (repository|repo) use <n>` Set default repository number
 
 Resources
 - `ascli (resource|res) use <n>` Set default resource number
-- `ascli (resource|res) [n] update <json>`
-- `ascli (resource|res) [n] publish`
+- `ascli (resource|res) update [n]  <json>`
 
 Enums
 - `ascli (enumeration|enum) list`
@@ -39,6 +38,7 @@ Enums
 Resources
 - `ascli (resource|res) export --pdf [n] [outputfile]`
 - `ascli (resource|res) export --ead [n] [outputfile|-]`
+- `ascli (resource|res) publish [n]`
 
 ### Maybe?
 
