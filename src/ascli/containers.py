@@ -10,7 +10,7 @@ def temp(container_id, repo):
 def get(id, repo):
     out = config.get(f'/repositories/{repo}/top_containers/{id}')
     out_json = json.loads(out.text)
-    print(json.dumps(out_json, indent=2))
+    return json.dumps(out_json, indent=2)
 
 
 def create(barcode, type, indicator, profile, repo):
@@ -26,7 +26,7 @@ def create(barcode, type, indicator, profile, repo):
     print(json.dumps(out_json, indent=2))
 
     if out_json["status"] != "Created":
-        exit(1)
+        print("Container could not be created")
 
     container_uri = out_json['uri']
 

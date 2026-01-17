@@ -1,4 +1,5 @@
 from cyclopts import App
+from cyclopts import Parameter
 import ascli.containers as containers
 import ascli.resources as resources
 
@@ -22,8 +23,9 @@ def container_get(id: int, repo: int = 2):
 
 
 @container_cmd.command(name="create")
-def container_create(barcode:str, ctype: str, indicator: str, profile: int, repo: int = 2):
-    """Create a container.
+def container_create(barcode:str = "", ctype: str="", indicator: str="", profile: int=None, repo: int = 2,
+                     json_out: bool = False):
+    """Create a container. Returns the container identifier of the newly-created container, unless "--json" is specified.
 
     Parameters
     ----------
@@ -37,9 +39,16 @@ def container_create(barcode:str, ctype: str, indicator: str, profile: int, repo
         The identifier number of the container profile.
     repo: int
         The repository ID number.
+    json_out: bool
+        Output container information as JSON.
     """
 
-    print("container create")
+    # out = containers.create(barcode, type, indicator, profile, repo)
+
+    if json_out:
+        print("container create output JSON")
+    else:
+        print("container create output identifier")
 
 
 @container_cmd.command(name="edit")
