@@ -6,10 +6,17 @@ This project is not even remotely ready for prime time. Currently, only commands
 
 ### Done
 
+Repositories
+- `ascli (repository|repo) get` Show information on the current default repository
+- `ascli (repository|repo) list` List all available repositories
+- `ascli (repository|repo) set <n>` Set default repository number
+
+- Containers
+- `ascli (container|cont) get <n>`
+
 ### In progress
 
 Containers
-- `ascli (container|cont) get <n>`
 - `ascli (container|cont) create`
 - `ascli (container|cont) edit <n>`
 
@@ -17,15 +24,7 @@ Resources
 - `ascli (resource|res) get <n>` Show information about the resource with the given number, or the current default resource
 - `ascli (resource|res) add-instance`
 
-Repositories
-- `ascli (repository|repo) get` Show information on the current default repository
-- `ascli (repository|repo) list` List all available repositories
-- `ascli (repository|repo) use <n>` Set default repository number
-
 ### High priority
-
-Repositories
-- `ascli (repository|repo) list` List all available repositories
 
 Resources
 - `ascli (resource|res) use <n>` Set default resource number

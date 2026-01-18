@@ -22,23 +22,50 @@ else:
 shelf.close()
 
 
+def from_shelf(item: str):
+    shelf = shelve.open(shelf_file)
+    if item in shelf:
+        value = shelf[item]
+        shelf.close()
+        return value
+    else:
+        shelf.close()
+        return None
+
+
+def to_shelf(item: str, value):
+    shelf = shelve.open(shelf_file)
+    shelf[item] = value
+    shelf.close()
+
+
 # Wrapper functions that call client.get() and client.post(), saving the token on the chance that it has been
 # refreshed due to expiration
 
 def get(endpoint):
+    global client
     response = client.get(endpoint)
-    new_token = client.session.headers[client.config['session_header_name']]
+    if response.status_code == 412: # cached token has expired
+        client = ASnakeClient()
+        client.authorize()
+        to_shelf('token', client.session.headers[client.config['session_header_name']])
+        response = client.get(endpoint)
+    new_token = client.session.headers[client.config['session_header_name']] # in case the token changed due to a 403
     shelf = shelve.open(shelf_file)
     shelf['token'] = new_token
     shelf.close()
     return response
 
 def post(endpoint):
+    global client
     response = client.post(endpoint)
+    if response.status_code == 412: # cached token has expired
+        client = ASnakeClient()
+        client.authorize()
+        to_shelf('token', client.session.headers[client.config['session_header_name']])
+        response = client.get(endpoint)
     new_token = client.session.headers[client.config['session_header_name']]
     shelf = shelve.open(shelf_file)
     shelf['token'] = new_token
     shelf.close()
     return response
-
-
