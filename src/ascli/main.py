@@ -15,7 +15,7 @@ repo_cmd = app.command(App(name="repository", alias="repo", help="Get info about
 
 
 @container_cmd.command(name="get")
-def container_get(id: int, repo: int = 2):
+def container_get(id: int, repo: int = None):
     """Get container information.
 
     Parameters
@@ -29,7 +29,7 @@ def container_get(id: int, repo: int = 2):
 
 
 @container_cmd.command(name="create")
-def container_create(barcode:str = "", ctype: str="", indicator: str="", profile: int=None, repo: int = 2,
+def container_create(barcode:str = "", ctype: str="", indicator: str="", profile: int=None, repo: int = None,
                      json_out: bool = False):
     """Create a container. Returns the container identifier of the newly-created container, unless "--json" is specified.
 
@@ -59,7 +59,7 @@ def container_create(barcode:str = "", ctype: str="", indicator: str="", profile
 
 @container_cmd.command(name="edit")
 def container_edit(container_id: int, barcode:str=None, ctype: str=None, indicator: str=None, profile: int=None,
-                   repo: int = 2):
+                   repo: int = None):
     """Create a container.
 
     Parameters
@@ -94,7 +94,7 @@ def repo_set(id: int=None):
 
 @repo_cmd.command(name="get")
 def repo_get(id: int=None, verbose: bool = False):
-    """Get information about the default (or specified) repository.
+    """Get information about the default or specified repository.
 
     Parameters
     ----------

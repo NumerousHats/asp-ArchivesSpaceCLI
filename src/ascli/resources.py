@@ -29,6 +29,7 @@ def main():
 def get_json(id, repo):
     """Get JSON representation of resource specified by ID."""
 
+    repo = config.get_default_repo(repo)
     dum = config.get(f'/repositories/{repo}/resources/{id}')
     dum_json = json.loads(dum.text)
     print(json.dumps(dum_json, indent=2))
@@ -53,6 +54,7 @@ def add_instance(container_id, ao_id, repo, itype, resource, type2, indicator2, 
        to which the instance should be added, unless the '--resource' flag is present. In that case, the instance
        will be added to the top level of the resource with identifier AO_ID.
     """
+    repo = config.get_default_repo(repo)
     instance_json = copy.deepcopy(instances_template)
     instance_json['sub_container']['top_container']['ref'] = f"/repositories/{repo}/top_containers/{container_id}"
     instance_json['instance_type'] = itype

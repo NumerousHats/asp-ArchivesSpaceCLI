@@ -7,11 +7,11 @@ This project is not even remotely ready for prime time. Currently, only commands
 ### Done
 
 Repositories
-- `ascli (repository|repo) get` Show information on the current default repository
+- `ascli (repository|repo) get [n]` Get information about the default or specified repository
 - `ascli (repository|repo) list` List all available repositories
 - `ascli (repository|repo) set <n>` Set default repository number
 
-- Containers
+Containers
 - `ascli (container|cont) get <n>`
 
 ### In progress

@@ -38,6 +38,15 @@ def to_shelf(item: str, value):
     shelf[item] = value
     shelf.close()
 
+def get_default_repo(repo: int):
+    if repo is None:
+        repo = from_shelf("repo")
+        if repo is None:
+            print("No repo specified")
+            exit(1)
+
+    return repo
+
 
 # Wrapper functions that call client.get() and client.post(), saving the token on the chance that it has been
 # refreshed due to expiration
