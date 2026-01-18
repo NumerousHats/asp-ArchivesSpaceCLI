@@ -1,4 +1,5 @@
 import shelve
+import sys
 from pathlib import Path
 
 import platformdirs
@@ -42,8 +43,8 @@ def get_default_repo(repo: int):
     if repo is None:
         repo = from_shelf("repo")
         if repo is None:
-            print("No repo specified")
-            exit(1)
+            print("No repo specified", file=sys.stderr)
+            sys.exit(1)
 
     return repo
 

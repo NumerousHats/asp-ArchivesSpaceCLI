@@ -1,6 +1,6 @@
 # A command-line tool to work with the ArchivesSpace API
 
-This project is not even remotely ready for prime time. Currently, only commands that have immediate usefulness for work at the UHEC are being implemented.
+This project is not even remotely ready for prime time. Currently, only commands that have immediate usefulness for work at the Ukrainian History and Education Center are being implemented.
 
 ## Command roadmap
 
@@ -14,26 +14,22 @@ Repositories
 Containers
 - `ascli (container|cont) get <n>`
 - `ascli (container|cont) create`
+- `ascli (container|cont) edit <n>`
 
 ### In progress
-
-Containers
-- `ascli (container|cont) edit <n>`
 
 Resources
 - `ascli (resource|res) get <n>` Show information about the resource with the given number, or the current default resource
 - `ascli (resource|res) add-instance`
+
+Enums
+- `ascli (enumeration|enum) get <n>`
 
 ### High priority
 
 Resources
 - `ascli (resource|res) use <n>` Set default resource number
 - `ascli (resource|res) update [n]  <json>`
-
-Enums
-- `ascli (enumeration|enum) list`
-- `ascli (enumeration|enum) create <name> <value>`
-- `ascli (enumeration|enum) update <n> <name> <value>`
 
 Container profiles
 - `ascli profiles list`
@@ -59,5 +55,10 @@ Resources
 
 Container profiles
 - `ascli profiles create`
+
+Enums
+- `ascli (enumeration|enum) list`
+- `ascli (enumeration|enum) create <name> <value>`
+- `ascli (enumeration|enum) update <n> <name> <value>`
 
 ### Rejected

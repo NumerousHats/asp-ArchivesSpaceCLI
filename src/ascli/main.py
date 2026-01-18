@@ -67,7 +67,7 @@ def container_create(indicator: str, ctype: str = None, barcode:str = "", profil
 @container_cmd.command(name="edit")
 def container_edit(container_id: int, barcode:str=None, ctype: str=None, indicator: str=None, profile: int=None,
                    repo: int = None):
-    """Create a container.
+    """Edit a container.
 
     Parameters
     ----------
@@ -84,8 +84,7 @@ def container_edit(container_id: int, barcode:str=None, ctype: str=None, indicat
     repo: int
         The repository ID number.
     """
-
-    print("container edit")
+    containers.edit(container_id, barcode, ctype, profile, repo, indicator)
 
 @repo_cmd.command(name="set")
 def repo_set(id: int=None):
