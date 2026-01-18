@@ -13,6 +13,7 @@ container_cmd = app.command(App(name="container", alias="cont",
 resource_cmd = app.command(App(name="resource", alias="res",
                                help="Create, modify, and get info about resources"))
 repo_cmd = app.command(App(name="repository", alias="repo", help="Get info about or set default repository"))
+enum_cmd = app.command(App(name="enumeration", alias="enum", help="Create, modify, and get info about enumeration lists"))
 
 
 @container_cmd.command(name="get")
@@ -135,6 +136,16 @@ def repo_list():
     out_json = json.loads(out.text)
     repos = [f"{out_json[i]['uri']} {out_json[i]['display_string']}" for i in range(len(out_json))]
     print("\n".join(repos))
+
+@enum_cmd.command(name="get")
+def enum_get(id: int):
+    """
+    Get enumeration values.
+    """
+
+    out = config.get(f'/config/enumerations/{id}')
+    out_json = json.loads(out.text)
+    print("\n".join(out_json['values']))
 
 
 def main():
