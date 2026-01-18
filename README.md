@@ -13,11 +13,11 @@ Repositories
 
 Containers
 - `ascli (container|cont) get <n>`
+- `ascli (container|cont) create`
 
 ### In progress
 
 Containers
-- `ascli (container|cont) create`
 - `ascli (container|cont) edit <n>`
 
 Resources
@@ -35,6 +35,9 @@ Enums
 - `ascli (enumeration|enum) create <name> <value>`
 - `ascli (enumeration|enum) update <n> <name> <value>`
 
+Container profiles
+- `ascli profiles list`
+
 ### Low priority
 
 Resources
@@ -44,12 +47,17 @@ Resources
 
 ### Maybe?
 
+API endpoint
 - `ascli endpoint` Show information on current default API endpoint
 - `ascli endpoint list` List all configured API endpoints
 - `ascli endpoint use` Set default API endpoint
 - `ascli endpoint create` Create a new API endpoint with URL and login credentials
-- `ascli endpoint delete` 
+- `ascli endpoint delete`
+
+Resources
 - Something to list/find resources?
 
+Container profiles
+- `ascli profiles create`
 
 ### Rejected

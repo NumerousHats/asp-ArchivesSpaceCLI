@@ -1,12 +1,6 @@
 import json
 import ascli.config as config
 
-def temp(container_id, repo):
-    repo = config.get_default_repo(repo)
-    out = config.get(f'/repositories/{repo}/archival_objects/{container_id}')
-    out_json = json.loads(out.text)
-    print(json.dumps(out_json, indent=2))
-
 
 def get(id, repo):
     repo = config.get_default_repo(repo)
@@ -15,23 +9,18 @@ def get(id, repo):
     return json.dumps(out_json, indent=2)
 
 
-def create(barcode, type, indicator, profile, repo):
+def create(barcode, ctype, indicator, profile, repo):
     repo = config.get_default_repo(repo)
-    top_container_json = {"type": type, "indicator": indicator, "jsonmodel_type": "top_container",
-                          "active_restrictions": []}
+    top_container_json = {"indicator": indicator, "jsonmodel_type": "top_container", "active_restrictions": []}
+    if ctype:
+        top_container_json['type'] = ctype
     if barcode:
         top_container_json['barcode'] = barcode
     if profile:
         top_container_json['container_profile'] = {"ref": f"/container_profiles/{profile}"}
 
     out = config.post(f'/repositories/{repo}/top_containers', json=top_container_json)
-    out_json = json.loads(out.text)
-    print(json.dumps(out_json, indent=2))
-
-    if out_json["status"] != "Created":
-        print("Container could not be created")
-
-    container_uri = out_json['uri']
+    return json.loads(out.text)
 
 
 def edit(container_id, barcode, ctype, profile, repo, indicator):

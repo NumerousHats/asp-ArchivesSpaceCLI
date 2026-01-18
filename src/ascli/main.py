@@ -1,7 +1,8 @@
 import json
+import sys
 
 from cyclopts import App
-from cyclopts import Parameter
+
 import ascli.containers as containers
 import ascli.resources as resources
 import ascli.config as config
@@ -29,18 +30,19 @@ def container_get(id: int, repo: int = None):
 
 
 @container_cmd.command(name="create")
-def container_create(barcode:str = "", ctype: str="", indicator: str="", profile: int=None, repo: int = None,
+def container_create(indicator: str, ctype: str = None, barcode:str = "", profile: int=None, repo: int = None,
                      json_out: bool = False):
-    """Create a container. Returns the container identifier of the newly-created container, unless "--json" is specified.
+    """Create a container. Returns the container identifier of the newly-created container,
+    unless "--json_out" is specified. In that case, the full JSON info is returned.
 
     Parameters
     ----------
-    barcode: int
-        The container barcode.
-    ctype: int
-        The container type.
     indicator: str
         The container indicator.
+    ctype: str
+        The container type.
+    barcode: int
+        The container barcode.
     profile: int
         The identifier number of the container profile.
     repo: int
@@ -49,12 +51,17 @@ def container_create(barcode:str = "", ctype: str="", indicator: str="", profile
         Output container information as JSON.
     """
 
-    # out = containers.create(barcode, type, indicator, profile, repo)
+    out = containers.create(barcode, ctype, indicator, profile, repo)
+
+    if out["status"] != "Created":
+        print("Container could not be created", file=sys.stderr)
+        sys.exit(1)
 
     if json_out:
-        print("container create output JSON")
+        print(json.dumps(out, indent=2))
     else:
-        print("container create output identifier")
+        print(out['id'])
+
 
 
 @container_cmd.command(name="edit")
@@ -120,7 +127,7 @@ def repo_get(id: int=None, verbose: bool = False):
         print(f"repository id {id} ({repository_name}")
 
 @repo_cmd.command(name="list")
-def repo_get():
+def repo_list():
     """
     List all repositories.
     """

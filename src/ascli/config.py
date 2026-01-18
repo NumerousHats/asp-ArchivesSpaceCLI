@@ -65,9 +65,9 @@ def get(endpoint):
     shelf.close()
     return response
 
-def post(endpoint):
+def post(endpoint, json=None):
     global client
-    response = client.post(endpoint)
+    response = client.post(endpoint, json=json)
     if response.status_code == 412: # cached token has expired
         client = ASnakeClient()
         client.authorize()
