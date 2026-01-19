@@ -16,13 +16,16 @@ Containers
 - `ascli (container|cont) create`
 - `ascli (container|cont) edit <n>`
 
+- Resources
+- `ascli (resource|res) get <n>` Show information about the resource with the given number, or the current default resource
+
+
 - Enums
 - `ascli (enumeration|enum) get <n>`
 
 ### In progress
 
 Resources
-- `ascli (resource|res) get <n>` Show information about the resource with the given number, or the current default resource
 - `ascli (resource|res) add-instance`
 
 ### High priority

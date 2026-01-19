@@ -12,8 +12,10 @@ container_cmd = app.command(App(name="container", alias="cont",
                                 help="Create, modify, and get info about top containers"))
 resource_cmd = app.command(App(name="resource", alias="res",
                                help="Create, modify, and get info about resources"))
-repo_cmd = app.command(App(name="repository", alias="repo", help="Get info about or set default repository"))
-enum_cmd = app.command(App(name="enumeration", alias="enum", help="Create, modify, and get info about enumeration lists"))
+repo_cmd = app.command(App(name="repository", alias="repo",
+                           help="Get info about or set default repository"))
+enum_cmd = app.command(App(name="enumeration", alias="enum",
+                           help="Create, modify, and get info about enumeration lists"))
 
 
 @container_cmd.command(name="get")
@@ -64,7 +66,6 @@ def container_create(indicator: str, ctype: str = None, barcode:str = "", profil
         print(out['id'])
 
 
-
 @container_cmd.command(name="edit")
 def container_edit(container_id: int, barcode:str=None, ctype: str=None, indicator: str=None, profile: int=None,
                    repo: int = None):
@@ -86,6 +87,53 @@ def container_edit(container_id: int, barcode:str=None, ctype: str=None, indicat
         The repository ID number.
     """
     containers.edit(container_id, barcode, ctype, profile, repo, indicator)
+
+@resource_cmd.command(name="get")
+def resource_get(id: int, repo: int=None):
+    """Get container information.
+
+    Parameters
+    ----------
+    id: int
+        The container ID number.
+    repo: int
+        The repository ID number.
+    """
+    resources.get(id, repo)
+
+
+@resource_cmd.command
+def add_instance(container_id: int, object_id: int, repo: int = None, itype: str = "mixed_materials",
+                     attach_to_resource: bool = False, type2: str = None, indicator2: str = None, barcode2: str = None,
+                     type3: str = None, indicator3: str = None):
+
+    """Add a container instance to an archival object or resource.
+
+    Parameters
+    ----------
+    container_id: int
+        The container ID number.
+    object_id: int
+        The ID of the resource or archival object where the instance should be attached.
+    itype: str
+        The instance type.
+    attach_to_resource: bool
+        Attach the instance to the top level of a resource rather than an archival object.
+    type2: int
+        Child instance type.
+    indicator2: str
+        Child instance indicator.
+    barcode2: str
+        Child instance barcode.
+    type3: int
+        Grandchild instance type.
+    indicator3: str
+        Grandchild instance indicator.
+    repo: int
+        The repository ID number.
+    """
+
+    pass
 
 @repo_cmd.command(name="set")
 def repo_set(id: int=None):
