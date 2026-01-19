@@ -88,6 +88,17 @@ def container_edit(container_id: int, barcode:str=None, ctype: str=None, indicat
     """
     containers.edit(container_id, barcode, ctype, profile, repo, indicator)
 
+@resource_cmd.command(name="set")
+def resource_set(id: int=None):
+    """Set the default resource.
+
+    Parameters
+    ----------
+    id: int
+        The default resource ID number you wish to set.
+    """
+    config.to_shelf("resource", id)
+
 @resource_cmd.command(name="get")
 def resource_get(id: int, repo: int=None):
     """Get container information.
@@ -114,11 +125,11 @@ def add_instance(container_id: int, object_id: int, repo: int = None, itype: str
     container_id: int
         The container ID number.
     object_id: int
-        The ID of the resource or archival object where the instance should be attached.
+        The ID of the archival object (or resource, if '--attach-to-resource') where the instance should be attached.
     itype: str
         The instance type.
     attach_to_resource: bool
-        Attach the instance to the top level of a resource rather than an archival object.
+        Attach the instance to the top level of a resource rather than an archival object. In this case, 'object-id' should be the ID of the resource.
     type2: int
         Child instance type.
     indicator2: str
@@ -132,8 +143,8 @@ def add_instance(container_id: int, object_id: int, repo: int = None, itype: str
     repo: int
         The repository ID number.
     """
-
-    pass
+    resources.add_instance(container_id, object_id, repo, itype, attach_to_resource,
+                           type2, indicator2, barcode2, type3, indicator3)
 
 @repo_cmd.command(name="set")
 def repo_set(id: int=None):
@@ -144,7 +155,7 @@ def repo_set(id: int=None):
     id: int
         The default repository ID number you wish to set.
     """
-    config.to_shelf("repo", id)
+    config.to_shelf("repository", id)
 
 
 @repo_cmd.command(name="get")
@@ -158,17 +169,10 @@ def repo_get(id: int=None, verbose: bool = False):
     verbose: bool
         Output detailed repository information as JSON.
     """
-
-    if id is None:
-        id = config.from_shelf('repo')
-    if id is None:
-        print("No repository ID specified")
-        return
-
+    id = config.get_default("repository", id)
     out = config.get(f'/repositories/{id}')
     out_json = json.loads(out.text)
     repository_name = out_json['display_string']
-
     if verbose:
         print(out_json)
     else:

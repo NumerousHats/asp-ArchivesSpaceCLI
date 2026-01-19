@@ -17,6 +17,7 @@ Containers
 - `ascli (container|cont) edit <n>`
 
 - Resources
+- `ascli (resource|res) use <n>` Set default resource number
 - `ascli (resource|res) get <n>` Show information about the resource with the given number, or the current default resource
 
 
@@ -31,11 +32,13 @@ Resources
 ### High priority
 
 Resources
-- `ascli (resource|res) use <n>` Set default resource number
 - `ascli (resource|res) update [n]  <json>`
 
 Container profiles
 - `ascli profiles list`
+
+CLI configuration
+- `ascli (clear-cache|cc) (all|repo|repository|resource|resc|token)`
 
 ### Low priority
 

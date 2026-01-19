@@ -39,14 +39,13 @@ def to_shelf(item: str, value):
     shelf[item] = value
     shelf.close()
 
-def get_default_repo(repo: int):
-    if repo is None:
-        repo = from_shelf("repo")
-        if repo is None:
-            print("No repo specified", file=sys.stderr)
+def get_default(key, value):
+    if value is None:
+        value = from_shelf(key)
+        if value is None:
+            print(f"No {key} specified", file=sys.stderr)
             sys.exit(1)
-
-    return repo
+    return value
 
 
 # Wrapper functions that call client.get() and client.post(), saving the token on the chance that it has been
