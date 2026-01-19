@@ -36,15 +36,15 @@ def add_instance(container_id, object_id, repo, itype, attach_to_resource, type2
     instance_json['sub_container']['top_container']['ref'] = f"/repositories/{repo}/top_containers/{container_id}"
     instance_json['instance_type'] = itype
     if type2:
-        instance_json['type_2'] = type2
+        instance_json['sub_container']['type_2'] = type2
     if indicator2:
-        instance_json['indicator_2'] = indicator2
+        instance_json['sub_container']['indicator_2'] = indicator2
     if barcode2:
-        instance_json['barcode_2'] = barcode2
+        instance_json['sub_container']['barcode_2'] = barcode2
     if type3:
-        instance_json['type_3'] = type3
+        instance_json['sub_container']['type_3'] = type3
     if indicator3:
-        instance_json['indicator_3'] = indicator3
+        instance_json['sub_container']['indicator_3'] = indicator3
 
     if attach_to_resource:
         endpoint = "resources"

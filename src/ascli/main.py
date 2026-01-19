@@ -33,10 +33,10 @@ def container_get(id: int, repo: int = None):
 
 
 @container_cmd.command(name="create")
-def container_create(indicator: str, ctype: str = None, barcode:str = "", profile: int=None, repo: int = None,
+def container_create(indicator: str, ctype: str = None, barcode:str = None, profile: int=None, repo: int = None,
                      json_out: bool = False):
     """Create a container. Returns the container identifier of the newly-created container,
-    unless "--json_out" is specified. In that case, the full JSON info is returned.
+    unless "--json-out" is specified. In that case, the full JSON info is returned.
 
     Parameters
     ----------
@@ -115,7 +115,7 @@ def resource_get(id: int, repo: int=None):
 
 @resource_cmd.command
 def add_instance(container_id: int, object_id: int, repo: int = None, itype: str = "mixed_materials",
-                     attach_to_resource: bool = False, type2: str = None, indicator2: str = None, barcode2: str = None,
+                     to_resource: bool = False, type2: str = None, indicator2: str = None, barcode2: str = None,
                      type3: str = None, indicator3: str = None):
 
     """Add a container instance to an archival object or resource.
@@ -128,7 +128,7 @@ def add_instance(container_id: int, object_id: int, repo: int = None, itype: str
         The ID of the archival object (or resource, if '--attach-to-resource') where the instance should be attached.
     itype: str
         The instance type.
-    attach_to_resource: bool
+    to_resource: bool
         Attach the instance to the top level of a resource rather than an archival object. In this case, 'object-id' should be the ID of the resource.
     type2: int
         Child instance type.
@@ -143,8 +143,10 @@ def add_instance(container_id: int, object_id: int, repo: int = None, itype: str
     repo: int
         The repository ID number.
     """
-    resources.add_instance(container_id, object_id, repo, itype, attach_to_resource,
-                           type2, indicator2, barcode2, type3, indicator3)
+    # TODO: allow container_id to grab from stdin
+
+    resources.add_instance(container_id, object_id, repo, itype, to_resource, type2, indicator2, barcode2,
+                           type3, indicator3)
 
 @repo_cmd.command(name="set")
 def repo_set(id: int=None):
