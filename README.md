@@ -21,9 +21,11 @@ Containers
 - `ascli (resource|res) get <n>` Show information about the resource with the given number, or the current default resource
 - `ascli (resource|res) add-instance`
 
-
 - Enums
 - `ascli (enumeration|enum) get <n>`
+
+CLI configuration
+- `ascli (clear-cache|cc) (all|repo|repository|resource|res|token)`
 
 ### In progress
 
@@ -36,9 +38,6 @@ Resources
 
 Container profiles
 - `ascli profiles list`
-
-CLI configuration
-- `ascli (clear-cache|cc) (all|repo|repository|resource|res|token)`
 
 ### Low priority
 

@@ -1,5 +1,6 @@
 import json
 import sys
+from typing import Literal
 
 from cyclopts import App
 
@@ -16,7 +17,6 @@ repo_cmd = app.command(App(name="repository", alias="repo",
                            help="Get info about or set default repository"))
 enum_cmd = app.command(App(name="enumeration", alias="enum",
                            help="Create, modify, and get info about enumeration lists"))
-
 
 @container_cmd.command(name="get")
 def container_get(id: int, repo: int = None):
@@ -200,6 +200,28 @@ def enum_get(id: int):
     out = config.get(f'/config/enumerations/{id}')
     out_json = json.loads(out.text)
     print("\n".join(out_json['values']))
+
+
+@app.command(alias="cc")
+def clear_cache(cache: Literal["all", "repo", "repository", "resource", "res", "token"]):
+    """
+    Clear all or selected persistent data caches.
+
+    Parameters
+    ----------
+    cache: Literal["all", "repo", "repository", "resource", "res", "token"]
+        Which cache to clear.
+    """
+
+    items_to_clear = []
+    if cache == "repo" or cache == "repository" or cache == "all":
+        items_to_clear.append("repository")
+    if cache == "resource" or cache == "res" or cache == "all":
+        items_to_clear.append("resource")
+    if cache == "token" or cache == "all":
+        items_to_clear.append("token")
+
+    config.clear_shelf(items_to_clear)
 
 
 def main():

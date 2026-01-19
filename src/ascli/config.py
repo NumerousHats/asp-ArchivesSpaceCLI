@@ -39,6 +39,14 @@ def to_shelf(item: str, value):
     shelf[item] = value
     shelf.close()
 
+def clear_shelf(items: list):
+    shelf = shelve.open(shelf_file)
+    for item in items:
+        if item in shelf:
+            del shelf[item]
+    shelf.close()
+
+
 def get_default(key, value):
     if value is None:
         value = from_shelf(key)
