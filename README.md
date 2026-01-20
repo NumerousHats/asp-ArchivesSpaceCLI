@@ -1,67 +1,72 @@
-# A command-line tool to work with the ArchivesSpace API
+# ascli: A command-line tool to work with the ArchivesSpace API
 
-This project is not even remotely ready for prime time. Currently, only commands that have immediate usefulness for work at the Ukrainian History and Education Center are being implemented.
+`ascli` is an attempt to ease some of the pain points associated with the creation and modification of records in [ArchivesSpace](www.archivesspace.org). It currently focuses on the management of containers and resources. It is a subcommand-style CLI (like `git` and `apt-get`) that modularizes different aspects of the creation and management of ArchivesSpace data records.
 
-## Command roadmap
+This project is not fully "ready for prime time". Currently, only commands that have immediate usefulness for the author's archival work are being implemented. It has not been extensively tested, so please use with caution. Editing of existing records runs the risk of data corruption, so *please make backups* before attempting any such operations.
+
+`ascli` is built on [ArchivesSnake](https://github.com/archivesspace-labs/ArchivesSnake). You will need to create an `.archivessnake.yml` file as described in the ArchivesSnake documentation to store the login credentials for your ArchivesSpace instance. The ArchivesSpace API session key is cached between runs of `ascli` in order to improve responsiveness and overall user experience, especially for commands that do not actually hit the API. Token expiration and re-authentication should be handled transparently. If there are authentication errors (or if you have security concerns), the stored token can be cleared using `ascli cc token`.
+
+## Roadmap
 
 ### Done
 
-Repositories
+#### Repositories
+- `ascli (repository|repo) set <n>` Set default repository number
 - `ascli (repository|repo) get [n]` Get information about the default or specified repository
 - `ascli (repository|repo) list` List all available repositories
-- `ascli (repository|repo) set <n>` Set default repository number
 
-Containers
+#### Containers
 - `ascli (container|cont) get <n>`
 - `ascli (container|cont) create`
 - `ascli (container|cont) edit <n>`
 
-- Resources
+#### Resources
 - `ascli (resource|res) use <n>` Set default resource number
 - `ascli (resource|res) get <n>` Show information about the resource with the given number, or the current default resource
 - `ascli (resource|res) add-instance`
 
-- Enums
+#### Enums
 - `ascli (enumeration|enum) get <n>`
 
-CLI configuration
+#### CLI configuration
 - `ascli (clear-cache|cc) (all|repo|repository|resource|res|token)`
 
 ### In progress
 
-Resources
+#### Resources
 
 ### High priority
 
-Resources
+#### Resources
 - `ascli (resource|res) update [n]  <json>`
+- some way of adding notes
 
-Container profiles
+#### Container profiles
 - `ascli profiles list`
 
 ### Low priority
 
-Resources
+#### Resources
 - `ascli (resource|res) export --pdf [n] [outputfile]`
 - `ascli (resource|res) export --ead [n] [outputfile|-]`
 - `ascli (resource|res) publish [n]`
 
 ### Maybe?
 
-API endpoint
+#### Manage the API endpoint
 - `ascli endpoint` Show information on current default API endpoint
 - `ascli endpoint list` List all configured API endpoints
 - `ascli endpoint use` Set default API endpoint
 - `ascli endpoint create` Create a new API endpoint with URL and login credentials
 - `ascli endpoint delete`
 
-Resources
+#### Resources
 - Something to list/find resources?
 
-Container profiles
+#### Container profiles
 - `ascli profiles create`
 
-Enums
+#### Enums
 - `ascli (enumeration|enum) list`
 - `ascli (enumeration|enum) create <name> <value>`
 - `ascli (enumeration|enum) update <n> <name> <value>`
