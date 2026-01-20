@@ -112,9 +112,15 @@ def resource_get(id: int, repo: int=None):
     """
     resources.get(id, repo)
 
+def read_container_id(id):
+    """Helper function to read the container ID from stdin."""
+    if id is not None:
+        return id
+    # No CLI value → read from stdin
+    return int(sys.stdin.readline().rstrip("\n"))
 
 @resource_cmd.command
-def add_instance(container_id: int, object_id: int, repo: int = None, itype: str = "mixed_materials",
+def add_instance(object_id: int, container_id: int = None, repo: int = None, itype: str = "mixed_materials",
                      to_resource: bool = False, type2: str = None, indicator2: str = None, barcode2: str = None,
                      type3: str = None, indicator3: str = None):
 
@@ -122,10 +128,10 @@ def add_instance(container_id: int, object_id: int, repo: int = None, itype: str
 
     Parameters
     ----------
-    container_id: int
-        The container ID number.
     object_id: int
         The ID of the archival object (or resource, if '--attach-to-resource') where the instance should be attached.
+    container_id: int
+        The container ID number. If not provided, read from stdin.
     itype: str
         The instance type.
     to_resource: bool
@@ -143,8 +149,7 @@ def add_instance(container_id: int, object_id: int, repo: int = None, itype: str
     repo: int
         The repository ID number.
     """
-    # TODO: allow container_id to grab from stdin
-
+    container_id = read_container_id(container_id)
     resources.add_instance(container_id, object_id, repo, itype, to_resource, type2, indicator2, barcode2,
                            type3, indicator3)
 
@@ -212,7 +217,6 @@ def clear_cache(cache: Literal["all", "repo", "repository", "resource", "res", "
     cache: Literal["all", "repo", "repository", "resource", "res", "token"]
         Which cache to clear.
     """
-
     items_to_clear = []
     if cache == "repo" or cache == "repository" or cache == "all":
         items_to_clear.append("repository")
