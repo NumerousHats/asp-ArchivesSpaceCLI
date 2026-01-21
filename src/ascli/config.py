@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 import atexit
 
+import asnake.client.web_client
 import platformdirs
 from asnake.client import ASnakeClient
 
@@ -31,10 +32,21 @@ class AppConfig(object):
             self.client = ASnakeClient(username=None, password=None, session_token=self.state['token'])
             self.client.authorize()
         else:
-            print("token cache miss", file=sys.stderr)
-            self.client = ASnakeClient()
-            self.client.authorize()
-            self.state['token'] = self.client.session.headers[self.client.config['session_header_name']]
+            asnake_file = Path.home() / '.archivessnake.yml'
+            if not asnake_file.is_file():
+                print("You are missing the '.achivessnake.yml' file in your home directory. This is required for authentication.",
+                      file=sys.stderr)
+                sys.exit(1)
+            try:
+                self.client = ASnakeClient()
+                self.client.authorize()
+                self.state['token'] = self.client.session.headers[self.client.config['session_header_name']]
+            except asnake.client.web_client.ASnakeAuthError:
+                print("Failed to authorize with the ASpace API client. Please check your '~/.achivessnake.yml' file.",
+                      file=sys.stderr)
+                sys.exit(1)
+
+
 
         # Save state at application exit without using file locking.
         #
