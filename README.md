@@ -17,7 +17,7 @@ ascli --install-completion # If you wish to have tab-completion. This will modif
 
 Running `ascli` via `uvx` or any other mechanism has not been tested.
 
-This project is under active development. New features and bug fixes may appear in the `main` branch without an increment in the version number. These can be pulled by running `uv tool update ascli`.
+This project is under active development. New features and bug fixes may appear in the `main` branch without an increment in the version number. These can be pulled by running `uv tool update ascli`. If a command was added or changed in an update, and it does not work with tab completion, rerun `ascli --install-completion`.
 
 # Roadmap
 
@@ -56,6 +56,11 @@ This project is under active development. New features and bug fixes may appear 
 
 #### Container profiles
 - `ascli profiles list`
+
+## Medium priority and/or complicated to implement
+
+#### Resources
+- spawn a resource from an accession including default notes, etc.
 
 ## Low priority
 
