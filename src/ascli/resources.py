@@ -59,7 +59,7 @@ def add_instance(container_id, object_id, repo, itype, attach_to_resource, type2
     else:
         out_json['instances'] = [instance_json]
 
-    out = config.post(f'/repositories/{repo}/{endpoint}/{object_id}', json=out_json)
+    out = config.post(f'/repositories/{repo}/{endpoint}/{object_id}', json_file=out_json)
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 

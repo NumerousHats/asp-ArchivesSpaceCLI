@@ -185,7 +185,7 @@ def repo_get(id: int=None, verbose: bool = False):
     if verbose:
         print(out_json)
     else:
-        print(f"repository id {id} ({repository_name}")
+        print(f"repository id {id}: {repository_name}")
 
 @repo_cmd.command(name="list")
 def repo_list():

@@ -65,7 +65,7 @@ class AppConfig(object):
 
     def get_default(self, key, value):
         if value is None:
-            value = self.state[key]
+            value = self.state.get(key)
             if value is None:
                 print(f"No {key} specified", file=sys.stderr)
                 sys.exit(1)
