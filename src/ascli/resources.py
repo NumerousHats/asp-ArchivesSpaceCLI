@@ -1,7 +1,8 @@
 import copy
 import json
-import ascli.config as config
+import ascli.config as appconfig
 
+config = appconfig.config
 
 def get(id, repo):
     repo = config.get_default("repository", repo)

@@ -6,7 +6,9 @@ from cyclopts import App
 
 import ascli.containers as containers
 import ascli.resources as resources
-import ascli.config as config
+import ascli.config as appconfig
+
+config = appconfig.config
 
 app = App(help="A command line tool for interacting with the ArchivesSpace API")
 container_cmd = app.command(App(name="container", alias="cont",
@@ -97,7 +99,7 @@ def resource_set(id: int=None):
     id: int
         The default resource ID number you wish to set.
     """
-    config.to_shelf("resource", id)
+    config.state["resource"] =  id
 
 @resource_cmd.command(name="get")
 def resource_get(id: int, repo: int=None):
@@ -162,7 +164,7 @@ def repo_set(id: int=None):
     id: int
         The default repository ID number you wish to set.
     """
-    config.to_shelf("repository", id)
+    config.state["repository"] = id
 
 
 @repo_cmd.command(name="get")
@@ -225,7 +227,7 @@ def clear_cache(cache: Literal["all", "repo", "repository", "resource", "res", "
     if cache == "token" or cache == "all":
         items_to_clear.append("token")
 
-    config.clear_shelf(items_to_clear)
+    config.clear_state(items_to_clear)
 
 
 def main():
