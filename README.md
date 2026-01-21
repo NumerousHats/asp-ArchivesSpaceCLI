@@ -24,25 +24,25 @@ This project is under active development. New features and bug fixes may appear 
 ## Done
 
 #### Repositories
-- `ascli (repository|repo) set <n>` Set default repository number
-- `ascli (repository|repo) get [n]` Get information about the default or specified repository
-- `ascli (repository|repo) list` List all available repositories
+- `ascli repository set <n>` Set default repository number
+- `ascli repository get [n]` Get information about the default or specified repository
+- `ascli repository list` List all available repositories
 
 #### Containers
-- `ascli (container|cont) get <n>`
-- `ascli (container|cont) create`
-- `ascli (container|cont) edit <n>`
+- `ascli container get <n>`
+- `ascli container create`
+- `ascli container edit <n>`
 
 #### Resources
-- `ascli (resource|res) set <n>` Set default resource number
-- `ascli (resource|res) get <n>` Show information about the resource with the given number, or the current default resource
-- `ascli (resource|res) add-instance`
+- `ascli resource set <n>` Set default resource number
+- `ascli resource get <n>` Show information about the resource with the given number, or the current default resource
+- `ascli resource add-instance`
 
 #### Enums
-- `ascli (enumeration|enum) get <n>`
+- `ascli enumeration get <n>`
 
 #### CLI configuration
-- `ascli (clear-cache|cc) (all|repo|repository|resource|res|token)`
+- `ascli clear-cache (all|epository|resource|token)`
 
 ## In progress
 
@@ -51,18 +51,18 @@ This project is under active development. New features and bug fixes may appear 
 ## High priority
 
 #### Resources
-- `ascli (resource|res) update [n]  <json>`
+- `ascli resource update [n]  <json>`
 - some way of adding notes
 
 #### Container profiles
 - `ascli profiles list`
 
-### Low priority
+## Low priority
 
 #### Resources
-- `ascli (resource|res) export --pdf [n] [outputfile]`
-- `ascli (resource|res) export --ead [n] [outputfile|-]`
-- `ascli (resource|res) publish [n]`
+- `ascli resource export --pdf [n] [outputfile]`
+- `ascli resource export --ead [n] [outputfile|-]`
+- `ascli resource publish [n]`
 
 ## Maybe?
 
@@ -80,8 +80,8 @@ This project is under active development. New features and bug fixes may appear 
 - `ascli profiles create`
 
 #### Enums
-- `ascli (enumeration|enum) list`
-- `ascli (enumeration|enum) create <name> <value>`
-- `ascli (enumeration|enum) update <n> <name> <value>`
+- `ascli enumeration list`
+- `ascli enumeration create <name> <value>`
+- `ascli enumeration update <n> <name> <value>`
 
 ## Rejected

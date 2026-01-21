@@ -13,14 +13,10 @@ config = appconfig.config
 app = App(help="A command line tool for interacting with the ArchivesSpace API")
 app.register_install_completion_command()
 
-container_cmd = app.command(App(name="container", alias="cont",
-                                help="Create, modify, and get info about top containers"))
-resource_cmd = app.command(App(name="resource", alias="res",
-                               help="Create, modify, and get info about resources"))
-repo_cmd = app.command(App(name="repository", alias="repo",
-                           help="Get info about or set default repository"))
-enum_cmd = app.command(App(name="enumeration", alias="enum",
-                           help="Create, modify, and get info about enumeration lists"))
+container_cmd = app.command(App(name="container", help="Create, modify, and get info about top containers"))
+resource_cmd = app.command(App(name="resource", help="Create, modify, and get info about resources"))
+repo_cmd = app.command(App(name="repository", help="Get info about or set default repository"))
+enum_cmd = app.command(App(name="enumeration", help="Create, modify, and get info about enumeration lists"))
 
 @container_cmd.command(name="get")
 def container_get(id: int, repo: int = None):
@@ -211,20 +207,20 @@ def enum_get(id: int):
     print("\n".join(out_json['values']))
 
 
-@app.command(alias="cc")
-def clear_cache(cache: Literal["all", "repo", "repository", "resource", "res", "token"]):
+@app.command()
+def clear_cache(cache: Literal["all", "repository", "resource", "token"]):
     """
     Clear all or selected persistent data caches.
 
     Parameters
     ----------
-    cache: Literal["all", "repo", "repository", "resource", "res", "token"]
+    cache: Literal["all", "repository", "resource", "token"]
         Which cache to clear.
     """
     items_to_clear = []
-    if cache == "repo" or cache == "repository" or cache == "all":
+    if cache == "repository" or cache == "all":
         items_to_clear.append("repository")
-    if cache == "resource" or cache == "res" or cache == "all":
+    if cache == "resource" or cache == "all":
         items_to_clear.append("resource")
     if cache == "token" or cache == "all":
         items_to_clear.append("token")
