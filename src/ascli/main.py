@@ -11,6 +11,8 @@ import ascli.config as appconfig
 config = appconfig.config
 
 app = App(help="A command line tool for interacting with the ArchivesSpace API")
+app.register_install_completion_command()
+
 container_cmd = app.command(App(name="container", alias="cont",
                                 help="Create, modify, and get info about top containers"))
 resource_cmd = app.command(App(name="resource", alias="res",

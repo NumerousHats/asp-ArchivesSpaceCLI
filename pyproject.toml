@@ -6,15 +6,12 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "archivessnake>=0.10.1",
-    "click==8.3.1",
     "cyclopts==4.5.0",
     "platformdirs>=4.5.1",
 ]
 
 [project.scripts]
 ascli = "ascli.main:main"
-ascli-containers = "ascli.containers:main"
-ascli-resources = "ascli.resources:main"
 
 [tool.uv]
 package = true
