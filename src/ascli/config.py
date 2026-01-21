@@ -42,11 +42,9 @@ class AppConfig(object):
                 self.client.authorize()
                 self.state['token'] = self.client.session.headers[self.client.config['session_header_name']]
             except asnake.client.web_client.ASnakeAuthError:
-                print("Failed to authorize with the ASpace API client. Please check your '~/.achivessnake.yml' file.",
+                print("Failed to authenticate with the ArchivesSpace API. Please check your '.achivessnake.yml' file.",
                       file=sys.stderr)
                 sys.exit(1)
-
-
 
         # Save state at application exit without using file locking.
         #

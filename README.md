@@ -17,7 +17,7 @@ ascli --install-completion # If you wish to have tab-completion. This will modif
 
 Running `ascli` via `uvx` or any other mechanism has not been tested.
 
-This project is under active development. New features and fixes will appear in the `main` branch without increments in the version number and can be pulled by running `uv tool update ascli`.
+This project is under active development. New features and bug fixes may appear in the `main` branch without an increment in the version number. These can be pulled by running `uv tool update ascli`.
 
 # Roadmap
 
