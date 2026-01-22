@@ -4,9 +4,9 @@ from typing import Literal
 
 from cyclopts import App
 
-import ascli.containers as containers
-import ascli.resources as resources
-import ascli.config as appconfig
+import asp.containers as containers
+import asp.resources as resources
+import asp.config as appconfig
 
 config = appconfig.config
 

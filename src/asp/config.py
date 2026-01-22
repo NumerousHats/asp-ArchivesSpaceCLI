@@ -10,7 +10,7 @@ from asnake.client import ASnakeClient
 
 class AppConfig(object):
     def __init__(self):
-        self.datadir = Path(platformdirs.user_data_dir('ascli'))
+        self.datadir = Path(platformdirs.user_data_dir('asp'))
         self.state_file = self.datadir / 'cache.json'
         if not self.datadir.is_dir():
             Path(self.datadir).mkdir(parents=True, exist_ok=True)

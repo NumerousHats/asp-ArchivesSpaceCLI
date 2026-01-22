@@ -1,6 +1,6 @@
 import copy
 import json
-import ascli.config as appconfig
+import asp.config as appconfig
 
 config = appconfig.config
 
