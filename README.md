@@ -71,13 +71,6 @@ This project is under active development. New features and bug fixes may appear 
 
 ## Maybe?
 
-#### Manage the API endpoint
-- `asp endpoint` Show information on current default API endpoint
-- `asp endpoint list` List all configured API endpoints
-- `asp endpoint use` Set default API endpoint
-- `asp endpoint create` Create a new API endpoint with URL and login credentials
-- `asp endpoint delete`
-
 #### Resources
 - Something to list/find resources?
 
@@ -89,4 +82,11 @@ This project is under active development. New features and bug fixes may appear 
 - `asp enumeration create <name> <value>`
 - `asp enumeration update <n> <name> <value>`
 
-## Rejected
+## Probably not
+
+#### Manage the API endpoint
+- `asp endpoint` Show information on current default API endpoint
+- `asp endpoint list` List all configured API endpoints
+- `asp endpoint use` Set default API endpoint
+- `asp endpoint create` Create a new API endpoint with URL and login credentials
+- `asp endpoint delete`
