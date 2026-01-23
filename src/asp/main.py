@@ -101,16 +101,20 @@ def resource_set(id: int=None):
 
 @resource_cmd.command(name="get")
 def resource_get(id: int, repo: int=None):
-    """Get container information.
+    """Get resource information.
 
     Parameters
     ----------
     id: int
-        The container ID number.
+        The resource ID number.
     repo: int
         The repository ID number.
     """
     resources.get(id, repo)
+
+@resource_cmd.command(name="update")
+def resource_update(new_json: str, id: int=None, repo: int=None):
+    pass
 
 def read_container_id(id):
     """Helper function to read the container ID from stdin."""

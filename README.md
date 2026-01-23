@@ -35,8 +35,9 @@ This project is under active development. New features and bug fixes may appear 
 
 #### Resources
 - `asp resource set <n>` Set default resource number
-- `asp resource get <n>` Show information about the resource with the given number, or the current default resource
-- `asp resource add-instance`
+- `asp resource get [n]` Get JSON representation of the default or specified resource
+- `asp resource update <json>` Update the default or specified resource with the provided JSON 
+- `asp resource add-instance` Add an existing container as a container instance to a resource or archival object
 
 #### Enums
 - `asp enumeration get <n>`
