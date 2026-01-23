@@ -51,6 +51,7 @@ The following commands are currently implemented:
 ## In progress
 
 #### Resources
+- `asp resource update [n]  <json>`
 
 ## High priority
 
@@ -58,7 +59,6 @@ The following commands are currently implemented:
 - add ability to add a container profile to a container
 
 #### Resources
-- `asp resource update [n]  <json>`
 - some way of adding notes
 
 #### Container profiles
