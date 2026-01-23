@@ -18,6 +18,15 @@ resource_cmd = app.command(App(name="resource", help="Create, modify, and get in
 repo_cmd = app.command(App(name="repository", help="Get info about or set default repository"))
 enum_cmd = app.command(App(name="enumeration", help="Create, modify, and get info about enumeration lists"))
 
+
+def read_from_stdin(value):
+    """Helper function to read a value of something from stdin."""
+    if value is not None:
+        return value
+    # No CLI value → read from stdin
+    return sys.stdin.readline().rstrip("\n")
+
+
 @container_cmd.command(name="get")
 def container_get(id: int, repo: int = None):
     """Get container information.
@@ -101,7 +110,7 @@ def resource_set(id: int=None):
 
 @resource_cmd.command(name="get")
 def resource_get(id: int, repo: int=None):
-    """Get resource information.
+    """Get resource JSON.
 
     Parameters
     ----------
@@ -112,16 +121,23 @@ def resource_get(id: int, repo: int=None):
     """
     resources.get(id, repo)
 
-@resource_cmd.command(name="update")
-def resource_update(new_json: str, id: int=None, repo: int=None):
-    pass
 
-def read_container_id(id):
-    """Helper function to read the container ID from stdin."""
-    if id is not None:
-        return id
-    # No CLI value → read from stdin
-    return int(sys.stdin.readline().rstrip("\n"))
+@resource_cmd.command(name="update")
+def resource_update(new_json: str=None, id: int=None, repo: int=None):
+    """Update resource from provided JSON.
+
+    Parameters
+    ----------
+    new_json: str
+        The JSON that will replace the currently existing resource metadata. If not provided, read from stdin.
+    id: int
+        The resource ID number.
+    repo: int
+        The repository ID number.
+    """
+    if new_json is None or new_json == '-':
+        new_json = sys.stdin.readline().rstrip("\n")
+    resources.update(new_json, id, repo)
 
 @resource_cmd.command
 def add_instance(object_id: int, container_id: int = None, repo: int = None, itype: str = "mixed_materials",
@@ -153,7 +169,7 @@ def add_instance(object_id: int, container_id: int = None, repo: int = None, ity
     repo: int
         The repository ID number.
     """
-    container_id = read_container_id(container_id)
+    container_id = int(read_from_stdin(container_id))
     resources.add_instance(container_id, object_id, repo, itype, to_resource, type2, indicator2, barcode2,
                            type3, indicator3)
 
