@@ -62,6 +62,7 @@ will change the extent number of the resource with identifier 34 to 10. Note tha
 ## In progress
 
 #### Resources
+- `asp resource update [n]  <json>`
 
 ## High priority
 

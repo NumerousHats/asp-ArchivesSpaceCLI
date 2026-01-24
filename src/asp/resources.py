@@ -6,9 +6,18 @@ config = appconfig.config
 
 def get(id, repo):
     repo = config.get_default("repository", repo)
-    dum = config.get(f'/repositories/{repo}/resources/{id}')
-    dum_json = json.loads(dum.text)
-    print(json.dumps(dum_json, indent=2))
+    id = config.get_default("resource", id)
+    out = config.get(f'/repositories/{repo}/resources/{id}')
+    out_json = json.loads(out.text)
+    print(json.dumps(out_json, indent=2))
+
+
+def update(new_json, id, repo):
+    repo = config.get_default("repository", repo)
+    id = config.get_default("resource", id)
+    out = config.post(f'/repositories/{repo}/resources/{id}', json_file=new_json)
+    out_json = json.loads(out.text)
+    print(json.dumps(out_json, indent=2))
 
 
 instance_template = {
