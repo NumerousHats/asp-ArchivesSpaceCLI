@@ -38,7 +38,18 @@ The following commands are currently implemented:
 #### Resources and archival objects
 - `asp resource set <n>` Set default resource number
 - `asp resource get [n]` Get JSON representation of the default or specified resource
+- `asp resource update <json>` Update default or specified resource with the provided JSON
 - `asp resource add-instance` Add an existing container as a container instance to a resource or archival object
+
+Note that some of these commands send output to `stdout` or get input from `stdin`. This allows you to pipe between `asp` commands, possibly with intermediary processing. For example,
+```commandline
+asp container create | asp resource add-instance 99
+```
+will create a new top container, then attach that newly-created container as an instance record of the archival object with identifier 99. Similarly,
+```commandline
+asp resource get 34 | jq -c '.extents[0].number = "10"' | asp resource update --id 34
+```
+will change the extent number of the resource with identifier 34 to 10. Note that the extent number must be a string (not an integer) and that `jq`'s 'compact' (`--c`) option must be used (see [https://jqlang.org/](https://jqlang.org/) for more information about `jq`).
 
 #### Enums
 - `asp enumeration get <n>` Get a list of all values in the specified enumeration
@@ -51,7 +62,6 @@ The following commands are currently implemented:
 ## In progress
 
 #### Resources
-- `asp resource update [n]  <json>`
 
 ## High priority
 
