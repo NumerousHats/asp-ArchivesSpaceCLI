@@ -136,7 +136,9 @@ def resource_update(new_json: str=None, id: int=None, repo: int=None):
         The repository ID number.
     """
     if new_json is None or new_json == '-':
-        new_json = sys.stdin.readline().rstrip("\n")
+        new_json = json.load(sys.stdin)
+    else:
+        new_json = json.loads(new_json)
     resources.update(new_json, id, repo)
 
 @resource_cmd.command

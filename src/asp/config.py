@@ -101,7 +101,7 @@ class AppConfig(object):
             self.client = ASnakeClient()
             self.client.authorize()
             self.state['token'] =  self.client.session.headers[self.client.config['session_header_name']]
-            response = self.client.get(endpoint)
+            response = self.client.post(endpoint, json=json_file)
         self.state['token'] = self.client.session.headers[self.client.config['session_header_name']]
         return response
 
