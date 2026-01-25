@@ -1,5 +1,7 @@
 import copy
 import json
+import sys
+
 import asp.config as appconfig
 
 config = appconfig.config
@@ -15,7 +17,49 @@ def get(id, repo):
 def update(new_json, id, repo):
     repo = config.get_default("repository", repo)
     id = config.get_default("resource", id)
-    out = config.client.post(f'/repositories/{repo}/resources/{id}', json=new_json)
+    out = config.client.post(f'repositories/{repo}/resources/{id}', json=new_json)
+    out_json = json.loads(out.text)
+    print(json.dumps(out_json, indent=2))
+
+
+note_singlepart_template = {"jsonmodel_type": "note_singlepart", "label": None, "type": None,
+                           "content": None, "publish": False}
+note_multipart_template = {"jsonmodel_type": "note_multipart", "label": None, "type": None,
+                           "subnotes": [{"jsonmodel_type": "note_text", "content": None, "publish": False}],
+                           "publish": False}
+
+def add_notes(input_json, id, repo, publish):
+    repo = config.get_default("repository", repo)
+    id = config.get_default("resource", id)
+
+    resource = config.client.get(f'repositories/{repo}/resources/{id}')
+    resource_json = json.loads(resource.text)
+
+    for note_info in input_json:
+        if note_info["jsonmodel_type"] == "note_singlepart":
+            note_json = copy.deepcopy(note_singlepart_template)
+            note_json["content"] = note_info["note_contents"]
+        elif note_info["jsonmodel_type"] == "note_multipart":
+            note_json = copy.deepcopy(note_multipart_template)
+            note_json["subnotes"][0]["content"] = note_info["note_contents"]
+            if publish:
+                note_json["subnotes"][0]["publish"] = True
+        else:
+            raise ValueError(f"Invalid jsonmodel_type '{note_info["jsonmodel_type"]}'")
+        if publish:
+            note_json["publish"] = True
+        if note_info["note_type"]:
+            note_json["type"] = note_info["note_type"]
+        else:
+            raise ValueError("note_type cannot be empty")
+        if note_info["label"]:
+            note_json["label"] = note_info["label"]
+        else:
+            del note_json["label"]
+
+        resource_json["notes"].append(note_json)
+
+    out = config.client.post(f'repositories/{repo}/resources/{id}', json=resource_json)
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 

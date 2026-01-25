@@ -152,6 +152,31 @@ def resource_update(new_json: str=None, id: int=None, repo: int=None):
         new_json = json.loads(new_json)
     resources.update(new_json, id, repo)
 
+@resource_cmd.command()
+def add_notes(note_file: str, id: int=None, repo: int=None, publish: bool=False):
+    """Add note(s) resource from information in the provided JSON.
+
+    Parameters
+    ----------
+    note_file: str
+        The JSON file
+    id: int
+        The resource ID number.
+    repo: int
+        The repository ID number.
+    publish: bool
+        Publish the notes (and sub-notes, if multipart)
+    """
+    try:
+        with open(note_file, 'r') as f:
+            note_json = json.load(f)
+    except FileNotFoundError:
+        print("Note JSON file not found", file=sys.stderr)
+    except json.JSONDecodeError:
+        print("Error decoding JSON from file. File might be corrupted.", file=sys.stderr)
+
+    resources.add_notes(note_json, id, repo, publish)
+
 @resource_cmd.command
 def add_instance(object_id: int, container_id: int = None, repo: int = None, itype: str = "mixed_materials",
                      to_resource: bool = False, type2: str = None, indicator2: str = None, barcode2: str = None,

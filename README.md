@@ -40,6 +40,27 @@ The following commands are currently implemented:
 - `asp resource set <n>` Set default resource number
 - `asp resource get [n]` Get JSON representation of the default or specified resource
 - `asp resource update <json>` Update default or specified resource with the provided JSON
+- `asp resource add-notes <json>` Add notes with content derived from the provided JSON file to the default or specified resource. 
+        
+  - Note that the provided JSON should **not** be in the form of an ArchivesSpace note `jsonmodel`, but should be of along the lines of 
+  
+    ```json
+    [
+      {
+        "note_type": "accessrestrict",
+        "jsonmodel_type": "note_multipart",
+        "label": "Alternative label (optional)",
+        "note_contents": "The collection is open for researcher use."
+      },
+      {
+        "note_type": "userestrict",
+        "jsonmodel_type": "note_multipart",
+        "label": "Alternative label (optional)",
+        "note_contents": "Copyright restrictions may apply."
+      }
+    ]
+    ```
+    It currently supports only single sub-notes.
 - `asp resource add-instance` Add an existing container as a container instance to a resource or archival object
 
 #### Enums
@@ -60,12 +81,7 @@ will change the extent number of the resource with identifier 34 to 10. Note tha
 
 # Roadmap
 
-## In progress
-
 ## High priority
-
-#### Resources
-- some way of adding notes
 
 ## Medium priority and/or complicated to implement
 
