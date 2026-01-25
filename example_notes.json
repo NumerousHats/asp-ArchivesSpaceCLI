@@ -1,14 +1,13 @@
 [
-      {
-        "note_type": "accessrestrict",
-        "jsonmodel_type": "note_multipart",
-        "label": "Alternative label (optional)",
-        "note_contents": "The collection is open for researcher use."
-      },
-      {
-        "note_type": "userestrict",
-        "jsonmodel_type": "note_multipart",
-        "label": "Alternative label (optional)",
-        "note_contents": "Copyright restrictions may apply."
-      }
-    ]
+  {
+    "note_type": "accessrestrict",
+    "jsonmodel_type": "note_multipart",
+    "label": "Alternative label (optional)",
+    "note_contents": "The collection is open for researcher use."
+  },
+  {
+    "note_type": "userestrict",
+    "jsonmodel_type": "note_multipart",
+    "note_contents": "Copyright restrictions may apply."
+  }
+]

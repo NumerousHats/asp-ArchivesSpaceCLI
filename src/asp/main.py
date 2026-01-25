@@ -140,7 +140,8 @@ def resource_update(new_json: str=None, id: int=None, repo: int=None):
     Parameters
     ----------
     new_json: str
-        The JSON that will replace the currently existing resource metadata. If not provided, read from stdin.
+        The JSON that will replace the currently existing resource metadata. If not provided, read from stdin. If
+        reading from stdin, the JSON must be in 'compact' format without newlines.
     id: int
         The resource ID number.
     repo: int
@@ -153,13 +154,13 @@ def resource_update(new_json: str=None, id: int=None, repo: int=None):
     resources.update(new_json, id, repo)
 
 @resource_cmd.command()
-def add_notes(note_file: str, id: int=None, repo: int=None, publish: bool=False):
+def add_notes(note_file: str=None, id: int=None, repo: int=None, publish: bool=False):
     """Add note(s) resource from information in the provided JSON.
 
     Parameters
     ----------
     note_file: str
-        The JSON file
+        File containing the note definition JSON. If not provided or is '-', read JSON from stdin.
     id: int
         The resource ID number.
     repo: int
@@ -167,13 +168,18 @@ def add_notes(note_file: str, id: int=None, repo: int=None, publish: bool=False)
     publish: bool
         Publish the notes (and sub-notes, if multipart)
     """
-    try:
-        with open(note_file, 'r') as f:
-            note_json = json.load(f)
-    except FileNotFoundError:
-        print("Note JSON file not found", file=sys.stderr)
-    except json.JSONDecodeError:
-        print("Error decoding JSON from file. File might be corrupted.", file=sys.stderr)
+    if note_file is None or note_file == '-':
+        note_json = json.load(sys.stdin)
+    else:
+        try:
+            with open(note_file, 'r') as f:
+                note_json = json.load(f)
+        except FileNotFoundError:
+            print("Note JSON file not found", file=sys.stderr)
+            exit(1)
+        except json.JSONDecodeError:
+            print("Error decoding JSON from file. File might be corrupted.", file=sys.stderr)
+            exit(1)
 
     resources.add_notes(note_json, id, repo, publish)
 

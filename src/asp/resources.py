@@ -36,6 +36,9 @@ def add_notes(input_json, id, repo, publish):
     resource_json = json.loads(resource.text)
 
     for note_info in input_json:
+        if "jsonmodel_type" not in note_info:
+            print("jsonmodel_type cannot be empty", file=sys.stderr)
+            exit(1)
         if note_info["jsonmodel_type"] == "note_singlepart":
             note_json = copy.deepcopy(note_singlepart_template)
             note_json["content"] = note_info["note_contents"]
@@ -45,14 +48,16 @@ def add_notes(input_json, id, repo, publish):
             if publish:
                 note_json["subnotes"][0]["publish"] = True
         else:
-            raise ValueError(f"Invalid jsonmodel_type '{note_info["jsonmodel_type"]}'")
+            print(f"Invalid jsonmodel_type '{note_info["jsonmodel_type"]}'", file=sys.stderr)
+            exit(1)
         if publish:
             note_json["publish"] = True
-        if note_info["note_type"]:
+        if "note_type" in note_info:
             note_json["type"] = note_info["note_type"]
         else:
-            raise ValueError("note_type cannot be empty")
-        if note_info["label"]:
+            print("note_type cannot be empty", file=sys.stderr)
+            exit(1)
+        if "label" in note_info:
             note_json["label"] = note_info["label"]
         else:
             del note_json["label"]

@@ -40,7 +40,7 @@ The following commands are currently implemented:
 - `asp resource set <n>` Set default resource number
 - `asp resource get [n]` Get JSON representation of the default or specified resource
 - `asp resource update <json>` Update default or specified resource with the provided JSON
-- `asp resource add-notes <json>` Add notes with content derived from the provided JSON file to the default or specified resource. 
+- `asp resource add-notes <json>` Add notes with content derived from the provided JSON file (or stdin) to the default or specified resource. 
         
   - Note that the provided JSON should **not** be in the form of an ArchivesSpace note `jsonmodel`, but should be of along the lines of 
   
