@@ -48,16 +48,16 @@ class AppConfig(object):
 
         # Save state at application exit without using file locking.
         #
-        # This, of course, could result in a race condition if more than one application process is running. However, the
-        # possibilities of that are so remote and of such low consequence that it's not worth dealing with.
+        # This, of course, could result in a race condition if more than one application process is running. However,
+        # the possibilities of that are so remote and of such low consequence that it's not worth dealing with.
         #
-        # A race condition could arise in only two scenarios: 1) a user (or user shell script, perhaps) runs more than one
-        # simultaneous and contradictory instances of 'repository set' or 'resource set', or 2) the session token expires while
-        # more than one process of the app is running.
+        # A race condition could arise in only two scenarios: 1) a user (or a shell script, perhaps) runs more than
+        # one simultaneous and contradictory instances of 'repository set' or 'resource set', or 2) the session token
+        # expires while more than one process of the app is running.
         #
-        # The first situation is practically impossible to happen in normal operation by a normal user, so it can be discounted.
-        # The second situation is slightly more plausible, but any invalid/expired key will be cleared at the next invocation of
-        # the application.
+        # The first situation is practically impossible to happen in normal operation by a normal user, so it can be
+        # discounted. The second situation is slightly more plausible, but any invalid/expired key will be cleared at
+        # the next time the application is run.
 
         def save_state():
             try:
@@ -81,29 +81,6 @@ class AppConfig(object):
                 sys.exit(1)
         return value
 
-    # Wrapper functions that call client.get() and client.post(), saving the token on the chance that it has been
-    # refreshed due to expiration
-
-    def get(self, endpoint):
-        response = self.client.get(endpoint)
-        if response.status_code == 412: # cached token has expired
-            self.client = ASnakeClient()
-            self.client.authorize()
-            self.state['token'] = self.client.session.headers[self.client.config['session_header_name']]
-            response = self.client.get(endpoint)
-        # in case the token changed due to a 403
-        self.state['token'] = self.client.session.headers[self.client.config['session_header_name']]
-        return response
-
-    def post(self, endpoint, json_file=None):
-        response = self.client.post(endpoint, json=json_file)
-        if response.status_code == 412: # cached token has expired
-            self.client = ASnakeClient()
-            self.client.authorize()
-            self.state['token'] =  self.client.session.headers[self.client.config['session_header_name']]
-            response = self.client.post(endpoint, json=json_file)
-        self.state['token'] = self.client.session.headers[self.client.config['session_header_name']]
-        return response
 
 config = AppConfig()
 

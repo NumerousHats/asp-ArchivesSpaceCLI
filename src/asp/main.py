@@ -14,6 +14,7 @@ app = App(help="A command line tool for interacting with the ArchivesSpace API")
 app.register_install_completion_command()
 
 container_cmd = app.command(App(name="container", help="Create, modify, and get info about top containers"))
+profile_cmd = container_cmd.command(App(name="profile", help="Create, modify, and get info about container profiles"))
 resource_cmd = app.command(App(name="resource", help="Create, modify, and get info about resources"))
 repo_cmd = app.command(App(name="repository", help="Get info about or set default repository"))
 enum_cmd = app.command(App(name="enumeration", help="Create, modify, and get info about enumeration lists"))
@@ -97,6 +98,16 @@ def container_edit(container_id: int, barcode:str=None, ctype: str=None, indicat
     """
     containers.edit(container_id, barcode, ctype, profile, repo, indicator)
 
+@profile_cmd.command(name="list")
+def profile_list():
+    """
+    List all container profiles.
+    """
+    profiles = config.client.get_paged("container_profiles")
+    for profile in profiles:
+        print(f'{profile["uri"]}\t{profile["display_string"]}')
+
+
 @resource_cmd.command(name="set")
 def resource_set(id: int=None):
     """Set the default resource.
@@ -157,7 +168,8 @@ def add_instance(object_id: int, container_id: int = None, repo: int = None, ity
     itype: str
         The instance type.
     to_resource: bool
-        Attach the instance to the top level of a resource rather than an archival object. In this case, 'object-id' should be the ID of the resource.
+        Attach the instance to the top level of a resource rather than an archival object. In this case, 'object-id'
+        should be the ID of the resource.
     type2: int
         Child instance type.
     indicator2: str
@@ -199,7 +211,7 @@ def repo_get(id: int=None, verbose: bool = False):
         Output detailed repository information as JSON.
     """
     id = config.get_default("repository", id)
-    out = config.get(f'/repositories/{id}')
+    out = config.cliet.get(f'repositories/{id}')
     out_json = json.loads(out.text)
     repository_name = out_json['display_string']
     if verbose:
@@ -213,7 +225,7 @@ def repo_list():
     List all repositories.
     """
 
-    out = config.get(f'/repositories')
+    out = config.client.get(f'repositories')
     out_json = json.loads(out.text)
     repos = [f"{out_json[i]['uri']} {out_json[i]['display_string']}" for i in range(len(out_json))]
     print("\n".join(repos))
@@ -224,7 +236,7 @@ def enum_get(id: int):
     Get enumeration values.
     """
 
-    out = config.get(f'/config/enumerations/{id}')
+    out = config.client.get(f'config/enumerations/{id}')
     out_json = json.loads(out.text)
     print("\n".join(out_json['values']))
 

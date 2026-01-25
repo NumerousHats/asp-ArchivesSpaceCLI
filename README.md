@@ -34,6 +34,7 @@ The following commands are currently implemented:
 - `asp container get <n>` Get JSON representation of the specified container
 - `asp container create` Create a new container
 - `asp container edit <n>` Modify properties of the specified container
+- `asp container profile list` List all container profiles
 
 #### Resources and archival objects
 - `asp resource set <n>` Set default resource number
@@ -61,19 +62,10 @@ will change the extent number of the resource with identifier 34 to 10. Note tha
 
 ## In progress
 
-#### Resources
-- `asp resource update [n]  <json>`
-
 ## High priority
-
-#### Containers
-- add ability to add a container profile to a container
 
 #### Resources
 - some way of adding notes
-
-#### Container profiles
-- `asp profiles list`
 
 ## Medium priority and/or complicated to implement
 
