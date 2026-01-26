@@ -39,11 +39,11 @@ def container_get(id: int, repo: int = None):
     repo: int
         The repository ID number.
     """
-    print(containers.get(id, repo))
+    print(appconfig.simple_get("top_containers", id, repo))
 
 
 @container_cmd.command(name="create")
-def container_create(indicator: str, ctype: str = None, barcode:str = None, profile: int=None, repo: int = None,
+def container_create(indicator: str, ctype: str = None, barcode: str = None, profile: int = None, repo: int = None,
                      json_out: bool = False):
     """Create a container. Returns the container identifier of the newly-created container,
     unless "--json-out" is specified. In that case, the full JSON info is returned.
@@ -77,8 +77,8 @@ def container_create(indicator: str, ctype: str = None, barcode:str = None, prof
 
 
 @container_cmd.command(name="edit")
-def container_edit(container_id: int, barcode:str=None, ctype: str=None, indicator: str=None, profile: int=None,
-                   repo: int = None):
+def container_edit(container_id: int, barcode: str = None, ctype: str = None, indicator: str = None,
+                   profile: int = None, repo: int = None):
     """Edit a container.
 
     Parameters
@@ -98,6 +98,7 @@ def container_edit(container_id: int, barcode:str=None, ctype: str=None, indicat
     """
     containers.edit(container_id, barcode, ctype, profile, repo, indicator)
 
+
 @profile_cmd.command(name="list")
 def profile_list():
     """
@@ -109,7 +110,7 @@ def profile_list():
 
 
 @resource_cmd.command(name="set")
-def resource_set(id: int=None):
+def resource_set(id: int = None):
     """Set the default resource.
 
     Parameters
@@ -117,10 +118,11 @@ def resource_set(id: int=None):
     id: int
         The default resource ID number you wish to set.
     """
-    config.state["resource"] =  id
+    config.state["resource"] = id
+
 
 @resource_cmd.command(name="get")
-def resource_get(id: int, repo: int=None):
+def resource_get(id: int, repo: int = None):
     """Get resource JSON.
 
     Parameters
@@ -130,11 +132,11 @@ def resource_get(id: int, repo: int=None):
     repo: int
         The repository ID number.
     """
-    resources.get(id, repo)
+    appconfig.simple_get("resources", id, repo)
 
 
 @resource_cmd.command(name="update")
-def resource_update(new_json: str=None, id: int=None, repo: int=None):
+def resource_update(new_json: str = None, id: int = None, repo: int = None):
     """Update resource from provided JSON.
 
     Parameters
@@ -151,10 +153,11 @@ def resource_update(new_json: str=None, id: int=None, repo: int=None):
         new_json = json.load(sys.stdin)
     else:
         new_json = json.loads(new_json)
-    resources.update(new_json, id, repo)
+    appconfig.simple_update(new_json, "resources", id, repo)
+
 
 @resource_cmd.command()
-def add_notes(note_file: str=None, id: int=None, repo: int=None, publish: bool=False):
+def add_notes(note_file: str = None, id: int = None, repo: int = None, publish: bool = False):
     """Add note(s) resource from information in the provided JSON.
 
     Parameters
@@ -183,11 +186,11 @@ def add_notes(note_file: str=None, id: int=None, repo: int=None, publish: bool=F
 
     resources.add_notes(note_json, id, repo, publish)
 
+
 @resource_cmd.command
 def add_instance(object_id: int, container_id: int = None, repo: int = None, itype: str = "mixed_materials",
-                     to_resource: bool = False, type2: str = None, indicator2: str = None, barcode2: str = None,
-                     type3: str = None, indicator3: str = None):
-
+                 to_resource: bool = False, type2: str = None, indicator2: str = None, barcode2: str = None,
+                 type3: str = None, indicator3: str = None):
     """Add a container instance to an archival object or resource.
 
     Parameters
@@ -218,8 +221,9 @@ def add_instance(object_id: int, container_id: int = None, repo: int = None, ity
     resources.add_instance(container_id, object_id, repo, itype, to_resource, type2, indicator2, barcode2,
                            type3, indicator3)
 
+
 @repo_cmd.command(name="set")
-def repo_set(id: int=None):
+def repo_set(id: int = None):
     """Set the default repository.
 
     Parameters
@@ -231,7 +235,7 @@ def repo_set(id: int=None):
 
 
 @repo_cmd.command(name="get")
-def repo_get(id: int=None, verbose: bool = False):
+def repo_get(id: int = None, verbose: bool = False):
     """Get information about the default or specified repository.
 
     Parameters
@@ -242,13 +246,14 @@ def repo_get(id: int=None, verbose: bool = False):
         Output detailed repository information as JSON.
     """
     id = config.get_default("repository", id)
-    out = config.cliet.get(f'repositories/{id}')
+    out = config.client.get(f'repositories/{id}')
     out_json = json.loads(out.text)
     repository_name = out_json['display_string']
     if verbose:
         print(out_json)
     else:
         print(f"repository id {id}: {repository_name}")
+
 
 @repo_cmd.command(name="list")
 def repo_list():
@@ -260,6 +265,7 @@ def repo_list():
     out_json = json.loads(out.text)
     repos = [f"{out_json[i]['uri']} {out_json[i]['display_string']}" for i in range(len(out_json))]
     print("\n".join(repos))
+
 
 @enum_cmd.command(name="get")
 def enum_get(id: int):

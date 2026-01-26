@@ -34,8 +34,8 @@ class AppConfig(object):
         else:
             asnake_file = Path.home() / '.archivessnake.yml'
             if not asnake_file.is_file():
-                print("You are missing the '.achivessnake.yml' file in your home directory. This is required for authentication.",
-                      file=sys.stderr)
+                print("You are missing the '.achivessnake.yml' file in your home directory. "
+                      "This is required for authentication.", file=sys.stderr)
                 sys.exit(1)
             try:
                 self.client = ASnakeClient()
@@ -84,3 +84,24 @@ class AppConfig(object):
 
 config = AppConfig()
 
+
+def construct_url(endpoint, id, repo, needs_repo):
+    repo = config.get_default("repository", repo)
+    if endpoint == "resources":
+        id = config.get_default("resource", id)
+    url = f'{endpoint}/{id}'
+    if needs_repo:
+        url = f'repositories/{repo}/' + url
+    return url
+
+
+def simple_get(endpoint, id, repo, needs_repo=True):
+    out = config.client.get(construct_url(endpoint, id, repo, needs_repo))
+    out_json = json.loads(out.text)
+    print(json.dumps(out_json, indent=2))
+
+
+def simple_update(new_json, endpoint, id, repo, needs_repo=True):
+    out = config.client.post(construct_url(endpoint, id, repo, needs_repo), json=new_json)
+    out_json = json.loads(out.text)
+    print(json.dumps(out_json, indent=2))

@@ -6,27 +6,13 @@ import asp.config as appconfig
 
 config = appconfig.config
 
-def get(id, repo):
-    repo = config.get_default("repository", repo)
-    id = config.get_default("resource", id)
-    out = config.client.get(f'repositories/{repo}/resources/{id}')
-    out_json = json.loads(out.text)
-    print(json.dumps(out_json, indent=2))
-
-
-def update(new_json, id, repo):
-    repo = config.get_default("repository", repo)
-    id = config.get_default("resource", id)
-    out = config.client.post(f'repositories/{repo}/resources/{id}', json=new_json)
-    out_json = json.loads(out.text)
-    print(json.dumps(out_json, indent=2))
-
 
 note_singlepart_template = {"jsonmodel_type": "note_singlepart", "label": None, "type": None,
-                           "content": None, "publish": False}
+                            "content": None, "publish": False}
 note_multipart_template = {"jsonmodel_type": "note_multipart", "label": None, "type": None,
                            "subnotes": [{"jsonmodel_type": "note_text", "content": None, "publish": False}],
                            "publish": False}
+
 
 def add_notes(input_json, id, repo, publish):
     repo = config.get_default("repository", repo)
@@ -87,7 +73,7 @@ def add_instance(container_id, object_id, repo, itype, attach_to_resource, type2
     """Add an instance to an Archival Object or Resource.
 
        CONTAINER_ID is the container identifier to be added and OBJECT_ID is the identifier of the Archival Object
-       to which the instance should be added, unless the 'attach_to_resource" is True. In that case, the instance
+       to which the instance should be added, unless the 'attach_to_resource' is True. In that case, the instance
        will be added to the top level of the resource with identifier OBJECT_ID.
     """
     repo = config.get_default("repository", repo)

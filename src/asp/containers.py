@@ -3,12 +3,6 @@ import asp.config as appconfig
 
 config = appconfig.config
 
-def get(id, repo):
-    repo = config.get_default("repository", repo)
-    out = config.client.get(f'repositories/{repo}/top_containers/{id}')
-    out_json = json.loads(out.text)
-    return json.dumps(out_json, indent=2)
-
 
 def create(barcode, ctype, indicator, profile, repo):
     repo = config.get_default("repository", repo)
@@ -41,5 +35,6 @@ def edit(container_id, barcode, ctype, profile, repo, indicator):
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 
+
 if __name__ == "__main__":
-    get(111, 2)
+    pass
