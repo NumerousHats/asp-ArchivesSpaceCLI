@@ -33,7 +33,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "archivessnake", specifier = ">=0.10.1" },
-    { name = "cyclopts", specifier = "==4.5.0" },
+    { name = "cyclopts", specifier = ">=4.5.0" },
     { name = "platformdirs", specifier = ">=4.5.1" },
 ]
 
