@@ -1,307 +1,122 @@
-import json
 import sys
-from typing import Literal
-
+from functools import partial
+from typing import Annotated
 from cyclopts import App
 
-import asp.containers as containers
-import asp.resources as resources
-import asp.config as appconfig
 
-config = appconfig.config
+class Cli(object):
+    def __init__(self):
+        self.app = App(help="A command line tool for interacting with the ArchivesSpace API")
+        self.app.register_install_completion_command()
 
-app = App(help="A command line tool for interacting with the ArchivesSpace API")
-app.register_install_completion_command()
+        self.container_cmd = self.app.command(App(name="container",
+                                                  help="Create, modify, and get info about top containers"))
+        self.profile_cmd = self.container_cmd.command(App(name="profile",
+                                                          help="Create, modify, and get info about container profiles"))
+        self.resource_cmd = self.app.command(App(name="resource",
+                                                 help="Create, modify, and get info about resources"))
+        self.instance_cmd = self.resource_cmd.command(App(name="instance",
+                                                          help="Create, modify, and get info about "
+                                                               "a container instance of a resource"))
+        self.notes_cmd = self.resource_cmd.command(App(name="notes",
+                                                       help="Create, modify, and get info about notes "
+                                                            "attached to a resource"))
+        self.repo_cmd = self.app.command(App(name="repository", help="List or get info about repositories"))
+        self.enum_cmd = self.app.command(App(name="enumeration",
+                                             help="Create, modify, and get info about enumeration lists"))
+        self.cache_cmd = self.app.command(App(name="cache", help="Set or clear persistent tokens and default values"))
+        self.cache_all_cmd = self.cache_cmd.command(App(name="all",
+                                                        help="Clear all persistent data"))
+        self.cache_resource_cmd = self.cache_cmd.command(App(name="resource",
+                                                             help="Set or clear default resource"))
+        self.cache_repo_cmd = self.cache_cmd.command(App(name="repository",
+                                                         help="Set or clear default repository"))
+        self.cache_token_cmd = self.cache_cmd.command(App(name="token",
+                                                          help="Clear the API authentication token"))
 
-container_cmd = app.command(App(name="container", help="Create, modify, and get info about top containers"))
-profile_cmd = container_cmd.command(App(name="profile", help="Create, modify, and get info about container profiles"))
-resource_cmd = app.command(App(name="resource", help="Create, modify, and get info about resources"))
-repo_cmd = app.command(App(name="repository", help="Get info about or set default repository"))
-enum_cmd = app.command(App(name="enumeration", help="Create, modify, and get info about enumeration lists"))
+        self.mapping = {'container': self.container_cmd, 'resource': self.resource_cmd, 'repository': self.repo_cmd,
+                        'enumeration': self.enum_cmd, 'cache': self.cache_cmd, 'resource-instance': self.instance_cmd,
+                        'resource-notes': self.notes_cmd, 'container-profile': self.profile_cmd,
+                        'cache-all': self.cache_all_cmd, 'cache-resource': self.cache_resource_cmd,
+                        'cache-repository': self.cache_repo_cmd, 'cache-token': self.cache_token_cmd}
 
 
-def read_from_stdin(value):
-    """Helper function to read a value of something from stdin."""
-    if value is not None:
-        return value
-    # No CLI value → read from stdin
-    return sys.stdin.readline().rstrip("\n")
-
-
-@container_cmd.command(name="get")
-def container_get(id: int, repo: int = None):
-    """Get container information.
-
-    Parameters
-    ----------
-    id: int
-        The container ID number.
-    repo: int
-        The repository ID number.
+def dispatch(action, parameters):
     """
-    print(appconfig.simple_get("top_containers", id, repo))
-
-
-@container_cmd.command(name="create")
-def container_create(indicator: str, ctype: str = None, barcode: str = None, profile: int = None, repo: int = None,
-                     json_out: bool = False):
-    """Create a container. Returns the container identifier of the newly-created container,
-    unless "--json-out" is specified. In that case, the full JSON info is returned.
-
-    Parameters
-    ----------
-    indicator: str
-        The container indicator.
-    ctype: str
-        The container type.
-    barcode: int
-        The container barcode.
-    profile: int
-        The identifier number of the container profile.
-    repo: int
-        The repository ID number.
-    json_out: bool
-        Output container information as JSON.
+    Generic API caller used by many subcommands.
     """
-
-    out = containers.create(barcode, ctype, indicator, profile, repo)
-
-    if out["status"] != "Created":
-        print("Container could not be created", file=sys.stderr)
-        sys.exit(1)
-
-    if json_out:
-        print(json.dumps(out, indent=2))
-    else:
-        print(out['id'])
+    print(f'dispatching {action} with parameters {parameters}')
 
 
-@container_cmd.command(name="edit")
-def container_edit(container_id: int, barcode: str = None, ctype: str = None, indicator: str = None,
-                   profile: int = None, repo: int = None):
-    """Edit a container.
+def register_command(cli, spec):
+    cli_command = cli.mapping['-'.join(filter(None, [spec['noun'], spec['noun2']]))]
 
-    Parameters
-    ----------
-    container_id: int
-        The container ID number.
-    barcode: int
-        The container barcode.
-    ctype: int
-        The container type.
-    indicator: str
-        The container indicator.
-    profile: int
-        The identifier number of the container profile.
-    repo: int
-        The repository ID number.
-    """
-    containers.edit(container_id, barcode, ctype, profile, repo, indicator)
+    match spec:
+        case {'params': 'none'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd():
+                return dispatch(spec, {})
 
 
-@profile_cmd.command(name="list")
-def profile_list():
-    """
-    List all container profiles.
-    """
-    profiles = config.client.get_paged("container_profiles")
-    for profile in profiles:
-        print(f'{profile["uri"]}\t{profile["display_string"]}')
+COMMANDS = [
+    {"noun": "resource", "noun2": "instance", "verb": "add", "params": "res_instance",
+     "endpoint": None, "method": None, "output": None,
+     "help": "Add a container instance to an archival object or resource."},
+    {"noun": "resource", "noun2": "notes", "verb": "add",
+     "params": "res_notes", "endpoint": None, "method": None, "output": None,
+     "help": "Add note(s) to a resource from information in the provided JSON."},
+    {"noun": "resource", "noun2": None, "verb": "get",
+     "params": "id_repo", "endpoint": "repositories/{repo}/resources/{id}", "method": "get", "output": None,
+     "help": "Get resource JSON."},
+    {"noun": "resource", "noun2": None, "verb": "update",
+     "params": "json_id_repo", "endpoint": "repositories/{repo}/resources/{id}", "method": "post", "output": None,
+     "help": "Update resource from provided JSON."},
+    {"noun": "repository", "noun2": None, "verb": "get",
+     "params": "id_verbose?", "endpoint": "repositories/{repo}", "method": "get", "output": None,
+     "help": "Get information about the default or specified repository."},
+    {"noun": "repository", "noun2": None, "verb": "list",
+     "params": "none", "endpoint": "repositories", "method": "get", "output": None,
+     "help": "List all repositories."},
+    {"noun": "enumeration", "noun2": None, "verb": "get",
+     "params": "id", "endpoint": "config/enumerations/{id}", "method": "get", "output": None,
+     "help": "Get values in an enumeration list"},
+    {"noun": "container", "noun2": None, "verb": "create",
+     "params": "cont_create", "endpoint": None, "method": None, "output": None,
+     "help": "Create a container. Returns the container identifier of the newly-created container, "
+             "unless '--verbose' is specified. In that case, the full JSON info is returned."},
+    {"noun": "container", "noun2": None, "verb": "edit",
+     "params": "cont_edit", "endpoint": None, "method": None, "output": None,
+     "help": "Edit a container."},
+    {"noun": "container", "noun2": None, "verb": "get",
+     "params": "id_repo", "endpoint": "repositories/{repo}/top_containers/{id}", "method": "get", "output": None,
+     "help": "Get container information."},
+    {"noun": "container", "noun2": "profile", "verb": "list",
+     "params": "none", "endpoint": "container_profiles", "method": "paged", "output": None,
+     "help": "List all container profiles."},
+    {"noun": "cache", "noun2": "all", "verb": "clear",
+     "params": "none", "endpoint": None, "method": None, "output": None,
+     "help": "Clear all cached tokens and defaults."},
+    {"noun": "cache", "noun2": "repository", "verb": "set",
+     "params": "id", "endpoint": None, "method": None, "output": None,
+     "help": "Set the default repository ID."},
+    {"noun": "cache", "noun2": "repository", "verb": "clear",
+     "params": "none", "endpoint": None, "method": None, "output": None,
+     "help": "Clear the default repository ID."},
+    {"noun": "cache", "noun2": "resource", "verb": "set",
+     "params": "id", "endpoint": None, "method": None, "output": None,
+     "help": "Set the default resource ID."},
+    {"noun": "cache", "noun2": "resource", "verb": "clear",
+     "params": "none", "endpoint": None, "method": None, "output": None,
+     "help": "Clear the default resource ID."},
+    {"noun": "cache", "noun2": "token", "verb": "clear",
+     "params": "none", "endpoint": None, "method": None, "output": None,
+     "help": "Clear the ArchivesSpace authentication token."}
+]
 
+cli = Cli()
 
-@resource_cmd.command(name="set")
-def resource_set(id: int = None):
-    """Set the default resource.
-
-    Parameters
-    ----------
-    id: int
-        The default resource ID number you wish to set.
-    """
-    config.state["resource"] = id
-
-
-@resource_cmd.command(name="get")
-def resource_get(id: int, repo: int = None):
-    """Get resource JSON.
-
-    Parameters
-    ----------
-    id: int
-        The resource ID number.
-    repo: int
-        The repository ID number.
-    """
-    appconfig.simple_get("resources", id, repo)
-
-
-@resource_cmd.command(name="update")
-def resource_update(new_json: str = None, id: int = None, repo: int = None):
-    """Update resource from provided JSON.
-
-    Parameters
-    ----------
-    new_json: str
-        The JSON that will replace the currently existing resource metadata. If not provided, read from stdin. If
-        reading from stdin, the JSON must be in 'compact' format without newlines.
-    id: int
-        The resource ID number.
-    repo: int
-        The repository ID number.
-    """
-    if new_json is None or new_json == '-':
-        new_json = json.load(sys.stdin)
-    else:
-        new_json = json.loads(new_json)
-    appconfig.simple_update(new_json, "resources", id, repo)
-
-
-@resource_cmd.command()
-def add_notes(note_file: str = None, id: int = None, repo: int = None, publish: bool = False):
-    """Add note(s) resource from information in the provided JSON.
-
-    Parameters
-    ----------
-    note_file: str
-        File containing the note definition JSON. If not provided or is '-', read JSON from stdin.
-    id: int
-        The resource ID number.
-    repo: int
-        The repository ID number.
-    publish: bool
-        Publish the notes (and sub-notes, if multipart)
-    """
-    if note_file is None or note_file == '-':
-        note_json = json.load(sys.stdin)
-    else:
-        try:
-            with open(note_file, 'r') as f:
-                note_json = json.load(f)
-        except FileNotFoundError:
-            print("Note JSON file not found", file=sys.stderr)
-            exit(1)
-        except json.JSONDecodeError:
-            print("Error decoding JSON from file. File might be corrupted.", file=sys.stderr)
-            exit(1)
-
-    resources.add_notes(note_json, id, repo, publish)
-
-
-@resource_cmd.command
-def add_instance(object_id: int, container_id: int = None, repo: int = None, itype: str = "mixed_materials",
-                 to_resource: bool = False, type2: str = None, indicator2: str = None, barcode2: str = None,
-                 type3: str = None, indicator3: str = None):
-    """Add a container instance to an archival object or resource.
-
-    Parameters
-    ----------
-    object_id: int
-        The ID of the archival object (or resource, if '--attach-to-resource') where the instance should be attached.
-    container_id: int
-        The container ID number. If not provided, read from stdin.
-    itype: str
-        The instance type.
-    to_resource: bool
-        Attach the instance to the top level of a resource rather than an archival object. In this case, 'object-id'
-        should be the ID of the resource.
-    type2: int
-        Child instance type.
-    indicator2: str
-        Child instance indicator.
-    barcode2: str
-        Child instance barcode.
-    type3: int
-        Grandchild instance type.
-    indicator3: str
-        Grandchild instance indicator.
-    repo: int
-        The repository ID number.
-    """
-    container_id = int(read_from_stdin(container_id))
-    resources.add_instance(container_id, object_id, repo, itype, to_resource, type2, indicator2, barcode2,
-                           type3, indicator3)
-
-
-@repo_cmd.command(name="set")
-def repo_set(id: int = None):
-    """Set the default repository.
-
-    Parameters
-    ----------
-    id: int
-        The default repository ID number you wish to set.
-    """
-    config.state["repository"] = id
-
-
-@repo_cmd.command(name="get")
-def repo_get(id: int = None, verbose: bool = False):
-    """Get information about the default or specified repository.
-
-    Parameters
-    ----------
-    id: int
-        The repository ID number (optional). If not specified, will report on the current default repository.
-    verbose: bool
-        Output detailed repository information as JSON.
-    """
-    id = config.get_default("repository", id)
-    out = config.client.get(f'repositories/{id}')
-    out_json = json.loads(out.text)
-    repository_name = out_json['display_string']
-    if verbose:
-        print(out_json)
-    else:
-        print(f"repository id {id}: {repository_name}")
-
-
-@repo_cmd.command(name="list")
-def repo_list():
-    """
-    List all repositories.
-    """
-
-    out = config.client.get(f'repositories')
-    out_json = json.loads(out.text)
-    repos = [f"{out_json[i]['uri']} {out_json[i]['display_string']}" for i in range(len(out_json))]
-    print("\n".join(repos))
-
-
-@enum_cmd.command(name="get")
-def enum_get(id: int):
-    """
-    Get enumeration values.
-    """
-
-    out = config.client.get(f'config/enumerations/{id}')
-    out_json = json.loads(out.text)
-    print("\n".join(out_json['values']))
-
-
-@app.command()
-def clear_cache(cache: Literal["all", "repository", "resource", "token"]):
-    """
-    Clear all or selected persistent data caches.
-
-    Parameters
-    ----------
-    cache: Literal["all", "repository", "resource", "token"]
-        Which cache to clear.
-    """
-    items_to_clear = []
-    if cache == "repository" or cache == "all":
-        items_to_clear.append("repository")
-    if cache == "resource" or cache == "all":
-        items_to_clear.append("resource")
-    if cache == "token" or cache == "all":
-        items_to_clear.append("token")
-
-    config.clear_state(items_to_clear)
-
-
-def main():
-    app()
-
+for spec in COMMANDS:
+    register_command(cli, spec)
 
 if __name__ == "__main__":
-    main()
+    cli.app()
