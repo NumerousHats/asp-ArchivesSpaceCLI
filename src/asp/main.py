@@ -1,7 +1,7 @@
-import sys
-from functools import partial
-from typing import Annotated
+import asp.config as appconfig
 from cyclopts import App
+
+config = appconfig.config
 
 
 class Cli(object):
@@ -41,29 +41,73 @@ class Cli(object):
                         'cache-repository': self.cache_repo_cmd, 'cache-token': self.cache_token_cmd}
 
 
-def dispatch(action, parameters):
+def dispatch(spec, parameters):
     """
-    Generic API caller used by many subcommands.
+    Generic caller used by subcommands.
     """
-    print(f'dispatching {action} with parameters {parameters}')
+    print(f'dispatching {spec} with parameters {parameters}')
+    match spec:
+        case {"noun": "cache"}:
+            if spec['verb'] == 'clear':
+                if spec['noun2'] == 'all':
+                    to_clear = ["resource", "repository", "token"]
+                else:
+                    to_clear = [spec['noun2']]
+                config.clear_state(to_clear)
+            else:
+                config.set_default(spec['noun2'], parameters['id'])
 
 
 def register_command(cli, spec):
     cli_command = cli.mapping['-'.join(filter(None, [spec['noun'], spec['noun2']]))]
+    spec['command'] = '-'.join(filter(None, [spec['noun'], spec['noun2'], spec['verb']]))
 
     match spec:
-        case {'params': 'none'}:
+        # bespoke signatures
+        case {'noun': 'resource', 'noun2': 'notes', 'verb': 'add'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(note_file: str = None, id: int = None, repo: int = None, publish: bool = False):
+                args = locals()
+                del args['spec']
+                return dispatch(spec, args)
+
+        # generic signatures
+        case {'params': None}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
             def _cmd():
                 return dispatch(spec, {})
+        case {'params': 'id'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(id: int):
+                return dispatch(spec, {'id': id})
+        case {'params': 'id-o'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(id: int = None):
+                return dispatch(spec, {'id': id})
+        case {'params': 'repo'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(repo: int):
+                return dispatch(spec, {'repo': repo})
+        case {'params': 'repo-o'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(repo: int = None):
+                return dispatch(spec, {'repo': repo})
+        case {'params': 'id-o_repo_o'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(id: int = None, repo: int = None):
+                return dispatch(spec, {'id': id, 'repo': repo})
+        case {'params': 'id_repo_o'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(id: int, repo: int = None):
+                return dispatch(spec, {'id': id, 'repo': repo})
 
 
 COMMANDS = [
-    {"noun": "resource", "noun2": "instance", "verb": "add", "params": "res_instance",
-     "endpoint": None, "method": None, "output": None,
+    {"noun": "resource", "noun2": "instance", "verb": "add",
+     "params": None, "endpoint": None, "method": None, "output": None,
      "help": "Add a container instance to an archival object or resource."},
     {"noun": "resource", "noun2": "notes", "verb": "add",
-     "params": "res_notes", "endpoint": None, "method": None, "output": None,
+     "params": None, "endpoint": None, "method": None, "output": None,
      "help": "Add note(s) to a resource from information in the provided JSON."},
     {"noun": "resource", "noun2": None, "verb": "get",
      "params": "id_repo", "endpoint": "repositories/{repo}/resources/{id}", "method": "get", "output": None,
@@ -75,7 +119,7 @@ COMMANDS = [
      "params": "id_verbose?", "endpoint": "repositories/{repo}", "method": "get", "output": None,
      "help": "Get information about the default or specified repository."},
     {"noun": "repository", "noun2": None, "verb": "list",
-     "params": "none", "endpoint": "repositories", "method": "get", "output": None,
+     "params": None, "endpoint": "repositories", "method": "get", "output": None,
      "help": "List all repositories."},
     {"noun": "enumeration", "noun2": None, "verb": "get",
      "params": "id", "endpoint": "config/enumerations/{id}", "method": "get", "output": None,
@@ -91,25 +135,25 @@ COMMANDS = [
      "params": "id_repo", "endpoint": "repositories/{repo}/top_containers/{id}", "method": "get", "output": None,
      "help": "Get container information."},
     {"noun": "container", "noun2": "profile", "verb": "list",
-     "params": "none", "endpoint": "container_profiles", "method": "paged", "output": None,
+     "params": None, "endpoint": "container_profiles", "method": "paged", "output": None,
      "help": "List all container profiles."},
     {"noun": "cache", "noun2": "all", "verb": "clear",
-     "params": "none", "endpoint": None, "method": None, "output": None,
+     "params": None, "endpoint": None, "method": None, "output": None,
      "help": "Clear all cached tokens and defaults."},
     {"noun": "cache", "noun2": "repository", "verb": "set",
      "params": "id", "endpoint": None, "method": None, "output": None,
      "help": "Set the default repository ID."},
     {"noun": "cache", "noun2": "repository", "verb": "clear",
-     "params": "none", "endpoint": None, "method": None, "output": None,
+     "params": None, "endpoint": None, "method": None, "output": None,
      "help": "Clear the default repository ID."},
     {"noun": "cache", "noun2": "resource", "verb": "set",
      "params": "id", "endpoint": None, "method": None, "output": None,
      "help": "Set the default resource ID."},
     {"noun": "cache", "noun2": "resource", "verb": "clear",
-     "params": "none", "endpoint": None, "method": None, "output": None,
+     "params": None, "endpoint": None, "method": None, "output": None,
      "help": "Clear the default resource ID."},
     {"noun": "cache", "noun2": "token", "verb": "clear",
-     "params": "none", "endpoint": None, "method": None, "output": None,
+     "params": None, "endpoint": None, "method": None, "output": None,
      "help": "Clear the ArchivesSpace authentication token."}
 ]
 
@@ -117,6 +161,11 @@ cli = Cli()
 
 for spec in COMMANDS:
     register_command(cli, spec)
+
+
+def main():
+    cli.app()
+
 
 if __name__ == "__main__":
     cli.app()

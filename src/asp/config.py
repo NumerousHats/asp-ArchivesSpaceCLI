@@ -73,6 +73,9 @@ class AppConfig(object):
             if item in self.state:
                 del self.state[item]
 
+    def set_default(self, key, value):
+        self.state[key] = value
+
     def get_default(self, key, value):
         if value is None:
             value = self.state.get(key)
