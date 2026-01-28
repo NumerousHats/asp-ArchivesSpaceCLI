@@ -46,16 +46,26 @@ def dispatch(spec, parameters):
     Generic caller used by subcommands.
     """
     print(f'dispatching {spec} with parameters {parameters}')
-    match spec:
-        case {"noun": "cache"}:
-            if spec['verb'] == 'clear':
-                if spec['noun2'] == 'all':
-                    to_clear = ["resource", "repository", "token"]
-                else:
-                    to_clear = [spec['noun2']]
-                config.clear_state(to_clear)
+    if spec['noun'] == 'cache':
+        if spec['verb'] == 'clear':
+            if spec['noun2'] == 'all':
+                to_clear = ["resource", "repository", "token"]
             else:
-                config.set_default(spec['noun2'], parameters['id'])
+                to_clear = [spec['noun2']]
+            config.clear_state(to_clear)
+        else:
+            config.set_default(spec['noun2'], parameters['id'])
+        return
+    if spec['endpoint'] is not None:
+        if 'id' not in parameters:
+            parameters['id'] = None
+        if 'repo' not in parameters:
+            parameters['repo'] = None
+        if spec['method'] == "get":
+            appconfig.simple_get(spec["endpoint"], parameters["id"], parameters["repo"])
+        if spec['method'] == "post":
+            appconfig.simple_post(parameters["new_json"], spec["endpoint"], parameters["id"], parameters["repo"])
+        return
 
 
 def register_command(cli, spec):
@@ -67,6 +77,12 @@ def register_command(cli, spec):
         case {'noun': 'resource', 'noun2': 'notes', 'verb': 'add'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
             def _cmd(note_file: str = None, id: int = None, repo: int = None, publish: bool = False):
+                args = locals()
+                del args['spec']
+                return dispatch(spec, args)
+        case {'noun': 'resource', 'noun2': 'instance', 'verb': 'add'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(note_file: str = None, id: int = None, repo: int = None, publish: bool = False):  # TODO THIS IS WRONG!!!!
                 args = locals()
                 del args['spec']
                 return dispatch(spec, args)
@@ -84,6 +100,10 @@ def register_command(cli, spec):
             @cli_command.command(name=spec["verb"], help=spec["help"])
             def _cmd(id: int = None):
                 return dispatch(spec, {'id': id})
+        case {'params': 'id-o_v'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(id: int = None, verbose: bool = False):
+                return dispatch(spec, {'id': id, 'verbose': verbose})
         case {'params': 'repo'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
             def _cmd(repo: int):
@@ -92,11 +112,11 @@ def register_command(cli, spec):
             @cli_command.command(name=spec["verb"], help=spec["help"])
             def _cmd(repo: int = None):
                 return dispatch(spec, {'repo': repo})
-        case {'params': 'id-o_repo_o'}:
+        case {'params': 'id-o_repo-o'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
             def _cmd(id: int = None, repo: int = None):
                 return dispatch(spec, {'id': id, 'repo': repo})
-        case {'params': 'id_repo_o'}:
+        case {'params': 'id_repo-o'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
             def _cmd(id: int, repo: int = None):
                 return dispatch(spec, {'id': id, 'repo': repo})
@@ -110,13 +130,13 @@ COMMANDS = [
      "params": None, "endpoint": None, "method": None, "output": None,
      "help": "Add note(s) to a resource from information in the provided JSON."},
     {"noun": "resource", "noun2": None, "verb": "get",
-     "params": "id_repo", "endpoint": "repositories/{repo}/resources/{id}", "method": "get", "output": None,
+     "params": "id_repo-o", "endpoint": "repositories/{repo}/resources/{id}", "method": "get", "output": None,
      "help": "Get resource JSON."},
     {"noun": "resource", "noun2": None, "verb": "update",
      "params": "json_id_repo", "endpoint": "repositories/{repo}/resources/{id}", "method": "post", "output": None,
      "help": "Update resource from provided JSON."},
     {"noun": "repository", "noun2": None, "verb": "get",
-     "params": "id_verbose?", "endpoint": "repositories/{repo}", "method": "get", "output": None,
+     "params": "id-o_v", "endpoint": "repositories/{repo}", "method": "get", "output": None,
      "help": "Get information about the default or specified repository."},
     {"noun": "repository", "noun2": None, "verb": "list",
      "params": None, "endpoint": "repositories", "method": "get", "output": None,
@@ -132,7 +152,7 @@ COMMANDS = [
      "params": "cont_edit", "endpoint": None, "method": None, "output": None,
      "help": "Edit a container."},
     {"noun": "container", "noun2": None, "verb": "get",
-     "params": "id_repo", "endpoint": "repositories/{repo}/top_containers/{id}", "method": "get", "output": None,
+     "params": "id_repo-o", "endpoint": "repositories/{repo}/top_containers/{id}", "method": "get", "output": None,
      "help": "Get container information."},
     {"noun": "container", "noun2": "profile", "verb": "list",
      "params": None, "endpoint": "container_profiles", "method": "paged", "output": None,

@@ -88,23 +88,21 @@ class AppConfig(object):
 config = AppConfig()
 
 
-def construct_url(endpoint, id, repo, needs_repo):
-    repo = config.get_default("repository", repo)
-    if endpoint == "resources":
+def simple_get(endpoint, id, repo):
+    if '{repo}' in endpoint:
+        repo = config.get_default("repository", repo)
+    if 'resource' in endpoint:
         id = config.get_default("resource", id)
-    url = f'{endpoint}/{id}'
-    if needs_repo:
-        url = f'repositories/{repo}/' + url
-    return url
-
-
-def simple_get(endpoint, id, repo, needs_repo=True):
-    out = config.client.get(construct_url(endpoint, id, repo, needs_repo))
+    out = config.client.get(endpoint.format(id=id, repo=repo))
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 
 
-def simple_update(new_json, endpoint, id, repo, needs_repo=True):
-    out = config.client.post(construct_url(endpoint, id, repo, needs_repo), json=new_json)
+def simple_post(new_json, endpoint, id, repo):
+    if 'repository' in endpoint:
+        repo = config.get_default("repository", repo)
+    if 'resource' in endpoint:
+        id = config.get_default("resource", id)
+    out = config.client.post(endpoint.format(id=id, repo=repo), json=new_json)
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
