@@ -91,6 +91,9 @@ def add_instance(container_id, object_id, repo, itype, to_resource, type2, indic
        will be added to the top level of the resource with identifier OBJECT_ID.
     """
     repo = config.get_default("repository", repo)
+    if container_id is None:
+        container_id = int(sys.stdin.readline().rstrip("\n"))
+
     instance_json = copy.deepcopy(instance_template)
     instance_json['sub_container']['top_container']['ref'] = f"/repositories/{repo}/top_containers/{container_id}"
     instance_json['instance_type'] = itype

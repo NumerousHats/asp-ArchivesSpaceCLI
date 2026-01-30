@@ -71,6 +71,9 @@ def dispatch(spec, parameters):
     if spec['command'] == 'resource-instance-add':
         resources.add_instance(**parameters)
         return
+    if spec['command'] == 'container-create':
+        containers.create(**parameters)
+        return
     if spec['endpoint'] is not None:
         if 'id' not in parameters:
             parameters['id'] = None
@@ -111,6 +114,13 @@ def register_command(cli, spec):
             def _cmd(object_id: int, container_id: int = None, repo: int = None, itype: str = "mixed_materials",
                      to_resource: bool = False, type2: str = None, indicator2: str = None, barcode2: str = None,
                      type3: str = None, indicator3: str = None):
+                args = locals()
+                del args['spec']
+                return dispatch(spec, args)
+        case {'noun': 'container', 'noun2': None, 'verb': 'create'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(indicator: str, ctype: str = None, barcode: str = None, profile: int = None, repo: int = None,
+                     json_out: bool = False):
                 args = locals()
                 del args['spec']
                 return dispatch(spec, args)
