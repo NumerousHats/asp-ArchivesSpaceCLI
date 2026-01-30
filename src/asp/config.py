@@ -94,15 +94,30 @@ def simple_get(endpoint, id, repo):
     if 'resource' in endpoint:
         id = config.get_default("resource", id)
     out = config.client.get(endpoint.format(id=id, repo=repo))
-    out_json = json.loads(out.text)
-    print(json.dumps(out_json, indent=2))
+    return json.loads(out.text)
 
 
 def simple_post(new_json, endpoint, id, repo):
+    if '{repo}' in endpoint:
+        repo = config.get_default("repository", repo)
+    if 'resource' in endpoint:
+        id = config.get_default("resource", id)
+
+    if new_json is None or new_json == '-':
+        new_json = json.load(sys.stdin)
+    else:
+        try:
+            with open(new_json, 'r') as f:
+                new_json = json.load(f)
+        except FileNotFoundError:
+            print("Note JSON file not found", file=sys.stderr)
+            exit(1)
+        except json.JSONDecodeError:
+            print("Error decoding JSON from file. File might be corrupted.", file=sys.stderr)
+            exit(1)
     if 'repository' in endpoint:
         repo = config.get_default("repository", repo)
     if 'resource' in endpoint:
         id = config.get_default("resource", id)
     out = config.client.post(endpoint.format(id=id, repo=repo), json=new_json)
-    out_json = json.loads(out.text)
-    print(json.dumps(out_json, indent=2))
+    return json.loads(out.text)

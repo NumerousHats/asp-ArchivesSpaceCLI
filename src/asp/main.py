@@ -1,4 +1,9 @@
+import json
+
 import asp.config as appconfig
+import asp.resources as resources
+import asp.containers as containers
+
 from cyclopts import App
 
 config = appconfig.config
@@ -43,9 +48,8 @@ class Cli(object):
 
 def dispatch(spec, parameters):
     """
-    Generic caller used by subcommands.
+    Generic caller used by commands.
     """
-    print(f'dispatching {spec} with parameters {parameters}')
     if spec['noun'] == 'cache':
         if spec['verb'] == 'clear':
             if spec['noun2'] == 'all':
@@ -56,15 +60,34 @@ def dispatch(spec, parameters):
         else:
             config.set_default(spec['noun2'], parameters['id'])
         return
+    if spec['command'] == 'container-profile-list':
+        profiles = config.client.get_paged("container_profiles")
+        for profile in profiles:
+            print(f'{profile["uri"]}\t{profile["display_string"]}')
+        return
+    if spec['command'] == 'resource-notes-add':
+        resources.add_notes(**parameters)
+        return
     if spec['endpoint'] is not None:
         if 'id' not in parameters:
             parameters['id'] = None
         if 'repo' not in parameters:
             parameters['repo'] = None
         if spec['method'] == "get":
-            appconfig.simple_get(spec["endpoint"], parameters["id"], parameters["repo"])
+            out_json = appconfig.simple_get(spec["endpoint"], parameters["id"], parameters["repo"])
+            if spec['command'] == 'repository-get' and not parameters['verbose']:
+                print(f"{out_json['uri']}\t{out_json['display_string']}")
+            elif spec['command'] == 'repository-list':
+                repos = [f"{out_json[i]['uri']} {out_json[i]['display_string']}" for i in range(len(out_json))]
+                print("\n".join(repos))
+            elif spec['command'] == 'enumeration-get':
+                print("\n".join(out_json['values']))
+            else:
+                print(json.dumps(out_json, indent=2))
         if spec['method'] == "post":
-            appconfig.simple_post(parameters["new_json"], spec["endpoint"], parameters["id"], parameters["repo"])
+            out_json = appconfig.simple_post(parameters["json_file"], spec["endpoint"], parameters["id"],
+                                             parameters["repo"])
+            print(json.dumps(out_json, indent=2))
         return
 
 
@@ -120,6 +143,10 @@ def register_command(cli, spec):
             @cli_command.command(name=spec["verb"], help=spec["help"])
             def _cmd(id: int, repo: int = None):
                 return dispatch(spec, {'id': id, 'repo': repo})
+        case {'params': 'json_id-o_repo-o'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(json_file: str = None, id: int = None, repo: int = None):
+                return dispatch(spec, {'json_file': json_file, 'id': id, 'repo': repo})
 
 
 COMMANDS = [
@@ -133,7 +160,7 @@ COMMANDS = [
      "params": "id_repo-o", "endpoint": "repositories/{repo}/resources/{id}", "method": "get", "output": None,
      "help": "Get resource JSON."},
     {"noun": "resource", "noun2": None, "verb": "update",
-     "params": "json_id_repo", "endpoint": "repositories/{repo}/resources/{id}", "method": "post", "output": None,
+     "params": "json_id-o_repo-o", "endpoint": "repositories/{repo}/resources/{id}", "method": "post", "output": None,
      "help": "Update resource from provided JSON."},
     {"noun": "repository", "noun2": None, "verb": "get",
      "params": "id-o_v", "endpoint": "repositories/{repo}", "method": "get", "output": None,
@@ -155,7 +182,7 @@ COMMANDS = [
      "params": "id_repo-o", "endpoint": "repositories/{repo}/top_containers/{id}", "method": "get", "output": None,
      "help": "Get container information."},
     {"noun": "container", "noun2": "profile", "verb": "list",
-     "params": None, "endpoint": "container_profiles", "method": "paged", "output": None,
+     "params": None, "endpoint": None, "method": None, "output": None,
      "help": "List all container profiles."},
     {"noun": "cache", "noun2": "all", "verb": "clear",
      "params": None, "endpoint": None, "method": None, "output": None,
