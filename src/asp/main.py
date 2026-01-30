@@ -68,6 +68,9 @@ def dispatch(spec, parameters):
     if spec['command'] == 'resource-notes-add':
         resources.add_notes(**parameters)
         return
+    if spec['command'] == 'resource-instance-add':
+        resources.add_instance(**parameters)
+        return
     if spec['endpoint'] is not None:
         if 'id' not in parameters:
             parameters['id'] = None
@@ -105,7 +108,9 @@ def register_command(cli, spec):
                 return dispatch(spec, args)
         case {'noun': 'resource', 'noun2': 'instance', 'verb': 'add'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(note_file: str = None, id: int = None, repo: int = None, publish: bool = False):  # TODO THIS IS WRONG!!!!
+            def _cmd(object_id: int, container_id: int = None, repo: int = None, itype: str = "mixed_materials",
+                     to_resource: bool = False, type2: str = None, indicator2: str = None, barcode2: str = None,
+                     type3: str = None, indicator3: str = None):
                 args = locals()
                 del args['spec']
                 return dispatch(spec, args)

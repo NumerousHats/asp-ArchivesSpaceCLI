@@ -14,7 +14,21 @@ note_multipart_template = {"jsonmodel_type": "note_multipart", "label": None, "t
                            "publish": False}
 
 
-def add_notes(input_json, id, repo, publish):
+def add_notes(note_file, id, repo, publish):
+    if note_file is None or note_file == '-':
+        input_json = json.load(sys.stdin)
+    else:
+        try:
+            with open(note_file, 'r') as f:
+                input_json = json.load(f)
+
+        except FileNotFoundError:
+            print("Note JSON file not found", file=sys.stderr)
+            exit(1)
+        except json.JSONDecodeError:
+            print("Error decoding JSON from file. File might be corrupted.", file=sys.stderr)
+            exit(1)
+
     repo = config.get_default("repository", repo)
     id = config.get_default("resource", id)
 
@@ -68,7 +82,7 @@ instance_template = {
 }
 
 
-def add_instance(container_id, object_id, repo, itype, attach_to_resource, type2, indicator2, barcode2,
+def add_instance(container_id, object_id, repo, itype, to_resource, type2, indicator2, barcode2,
                  type3, indicator3):
     """Add an instance to an Archival Object or Resource.
 
@@ -91,7 +105,7 @@ def add_instance(container_id, object_id, repo, itype, attach_to_resource, type2
     if indicator3:
         instance_json['sub_container']['indicator_3'] = indicator3
 
-    if attach_to_resource:
+    if to_resource:
         endpoint = "resources"
     else:
         endpoint = "archival_objects"
