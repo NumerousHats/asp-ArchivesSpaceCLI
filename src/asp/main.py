@@ -74,6 +74,9 @@ def dispatch(spec, parameters):
     if spec['command'] == 'container-create':
         containers.create(**parameters)
         return
+    if spec['command'] == 'container-edit':
+        containers.edit(**parameters)
+        return
     if spec['endpoint'] is not None:
         if 'id' not in parameters:
             parameters['id'] = None
@@ -121,6 +124,13 @@ def register_command(cli, spec):
             @cli_command.command(name=spec["verb"], help=spec["help"])
             def _cmd(indicator: str, ctype: str = None, barcode: str = None, profile: int = None, repo: int = None,
                      json_out: bool = False):
+                args = locals()
+                del args['spec']
+                return dispatch(spec, args)
+        case {'noun': 'container', 'noun2': None, 'verb': 'edit'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(container_id: int, barcode: str = None, ctype: str = None, indicator: str = None,
+                     profile: int = None, repo: int = None):
                 args = locals()
                 del args['spec']
                 return dispatch(spec, args)
