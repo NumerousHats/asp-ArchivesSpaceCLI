@@ -1,10 +1,11 @@
 import json
+from typing import Annotated
 
 import asp.config as appconfig
 import asp.resources as resources
 import asp.containers as containers
 
-from cyclopts import App
+from cyclopts import App, Parameter
 
 config = appconfig.config
 
@@ -107,30 +108,104 @@ def register_command(cli, spec):
     match spec:
         # bespoke signatures
         case {'noun': 'resource', 'noun2': 'notes', 'verb': 'add'}:
-            @cli_command.command(name=spec["verb"], help=spec["help"])
+            @cli_command.command(name=spec["verb"])
             def _cmd(note_file: str = None, id: int = None, repo: int = None, publish: bool = False):
+                """Add note(s) resource from information in the provided JSON.
+
+                Parameters
+                ----------
+                note_file: str
+                    File containing the note definition JSON. If not provided or is '-', read JSON from stdin.
+                id: int
+                    The resource ID number.
+                repo: int
+                    The repository ID number.
+                publish: bool
+                    Publish the notes (and sub-notes, if multipart)
+                """
                 args = locals()
                 del args['spec']
                 return dispatch(spec, args)
         case {'noun': 'resource', 'noun2': 'instance', 'verb': 'add'}:
-            @cli_command.command(name=spec["verb"], help=spec["help"])
+            @cli_command.command(name=spec["verb"])
             def _cmd(object_id: int, container_id: int = None, repo: int = None, itype: str = "mixed_materials",
                      to_resource: bool = False, type2: str = None, indicator2: str = None, barcode2: str = None,
                      type3: str = None, indicator3: str = None):
+                """Add a container instance to an archival object or resource.
+
+                Parameters
+                ----------
+                object_id: int
+                    The ID of the archival object (or resource, if '--attach-to-resource') where the instance should be attached.
+                container_id: int
+                    The container ID number. If not provided, read from stdin.
+                itype: str
+                    The instance type.
+                to_resource: bool
+                    Attach the instance to the top level of a resource rather than an archival object. In this case, 'object-id'
+                    should be the ID of the resource.
+                type2: int
+                    Child instance type.
+                indicator2: str
+                    Child instance indicator.
+                barcode2: str
+                    Child instance barcode.
+                type3: int
+                    Grandchild instance type.
+                indicator3: str
+                    Grandchild instance indicator.
+                repo: int
+                    The repository ID number.
+                """
                 args = locals()
                 del args['spec']
                 return dispatch(spec, args)
         case {'noun': 'container', 'noun2': None, 'verb': 'create'}:
-            @cli_command.command(name=spec["verb"], help=spec["help"])
+            @cli_command.command(name=spec["verb"])
             def _cmd(indicator: str, ctype: str = None, barcode: str = None, profile: int = None, repo: int = None,
                      json_out: bool = False):
+                """Create a container. Returns the container identifier of the newly-created container,
+                unless "--json-out" is specified. In that case, the full JSON info is returned.
+
+                Parameters
+                ----------
+                indicator: str
+                    The container indicator.
+                ctype: str
+                    The container type.
+                barcode: int
+                    The container barcode.
+                profile: int
+                    The identifier number of the container profile.
+                repo: int
+                    The repository ID number.
+                json_out: bool
+                    Output container information as JSON.
+                """
                 args = locals()
                 del args['spec']
                 return dispatch(spec, args)
         case {'noun': 'container', 'noun2': None, 'verb': 'edit'}:
-            @cli_command.command(name=spec["verb"], help=spec["help"])
+            @cli_command.command(name=spec["verb"])
             def _cmd(container_id: int, barcode: str = None, ctype: str = None, indicator: str = None,
                      profile: int = None, repo: int = None):
+                """Edit a container.
+
+                Parameters
+                ----------
+                container_id: int
+                    The container ID number.
+                barcode: int
+                    The container barcode.
+                ctype: int
+                    The container type.
+                indicator: str
+                    The container indicator.
+                profile: int
+                    The identifier number of the container profile.
+                repo: int
+                    The repository ID number.
+                """
                 args = locals()
                 del args['spec']
                 return dispatch(spec, args)
@@ -142,35 +217,41 @@ def register_command(cli, spec):
                 return dispatch(spec, {})
         case {'params': 'id'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(id: int):
+            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {spec['noun']}")]):
                 return dispatch(spec, {'id': id})
         case {'params': 'id-o'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(id: int = None):
+            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {spec['noun']}")] = None):
                 return dispatch(spec, {'id': id})
         case {'params': 'id-o_v'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(id: int = None, verbose: bool = False):
+            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {spec['noun']}")] = None,
+                     verbose: bool = False):
                 return dispatch(spec, {'id': id, 'verbose': verbose})
         case {'params': 'repo'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(repo: int):
+            def _cmd(repo: Annotated[int, Parameter(help="The repository ID")]):
                 return dispatch(spec, {'repo': repo})
         case {'params': 'repo-o'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(repo: int = None):
+            def _cmd(repo: Annotated[int, Parameter(help="The repository ID")] = None):
                 return dispatch(spec, {'repo': repo})
         case {'params': 'id-o_repo-o'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(id: int = None, repo: int = None):
+            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {spec['noun']}")] = None,
+                     repo: Annotated[int, Parameter(help="The repository ID")] = None):
                 return dispatch(spec, {'id': id, 'repo': repo})
         case {'params': 'id_repo-o'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(id: int, repo: int = None):
+            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {spec['noun']}")],
+                     repo: Annotated[int, Parameter(help="The repository ID")] = None):
                 return dispatch(spec, {'id': id, 'repo': repo})
         case {'params': 'json_id-o_repo-o'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(json_file: str = None, id: int = None, repo: int = None):
+            def _cmd(json_file: Annotated[str,
+                            Parameter(help="Filename of the JSON payload file or '-' to read from 'stdin'")] = None,
+                     id: Annotated[int, Parameter(help=f"The ID of the {spec['noun']}")] = None,
+                     repo: Annotated[int, Parameter(help="The repository ID")] = None):
                 return dispatch(spec, {'json_file': json_file, 'id': id, 'repo': repo})
 
 
