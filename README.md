@@ -23,24 +23,23 @@ This project is under active development. New features and bug fixes may appear 
 
 Detailed usage information for each command, including all available options and parameters, can be displayed using the `--help` flag.
 
+## Commands
 The following commands are currently implemented:
 
 #### Repositories
-- `asp repository set <n>` Set default repository number
-- `asp repository get [n]` Get information about the default or specified repository
+- `asp repository get` Get information about the default or specified repository
 - `asp repository list` List all available repositories
 
 #### Containers
-- `asp container get <n>` Get JSON representation of the specified container
+- `asp container get` Get JSON representation of the specified container
 - `asp container create` Create a new container
-- `asp container edit <n>` Modify properties of the specified container
+- `asp container edit` Modify properties of the specified container
 - `asp container profile list` List all container profiles
 
 #### Resources and archival objects
-- `asp resource set <n>` Set default resource number
-- `asp resource get [n]` Get JSON representation of the default or specified resource
-- `asp resource update <json>` Update default or specified resource with the provided JSON
-- `asp resource add-notes <json>` Add notes with content derived from the provided JSON file (or stdin) to the default or specified resource. 
+- `asp resource get` Get JSON representation of the default or specified resource
+- `asp resource update` Update default or specified resource with the provided JSON
+- `asp resource notes add` Add notes with content derived from the provided JSON file (or stdin) to the default or specified resource. 
         
   - Note that the provided JSON should **not** be in the form of an ArchivesSpace note `jsonmodel`, but should be of along the lines of 
   
@@ -61,14 +60,17 @@ The following commands are currently implemented:
     ]
     ```
     It currently supports only single sub-notes.
-- `asp resource add-instance` Add an existing container as a container instance to a resource or archival object
+- `asp resource instance add` Add an existing container as a container instance to a resource or archival object
 
 #### Enums
-- `asp enumeration get <n>` Get a list of all values in the specified enumeration
+- `asp enumeration get` Get a list of all values in the specified enumeration
 
 #### CLI configuration
-- `asp clear-cache (all|epository|resource|token)`
+- `asp cache (all|epository|resource|token) clear`
+- `asp cache (repository|resource) set`
 
+
+## Use of `stdin` and `stdout`
 Note that some of these commands send output to `stdout` or get input from `stdin`. This allows you to pipe between `asp` commands, possibly with intermediary processing. For example,
 ```commandline
 asp container create | asp resource add-instance 99
