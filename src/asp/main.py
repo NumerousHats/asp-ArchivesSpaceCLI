@@ -102,7 +102,9 @@ def dispatch(spec, parameters):
 
 
 def register_command(cli, spec):
-    cli_command = cli.mapping['-'.join(filter(None, [spec['noun'], spec['noun2']]))]
+    nouns = filter(None, [spec['noun'], spec['noun2']])
+    cli_command = cli.mapping['-'.join(nouns)]
+    thingy = cli.mapping[' '.join(nouns)]
     spec['command'] = '-'.join(filter(None, [spec['noun'], spec['noun2'], spec['verb']]))
 
     match spec:
@@ -217,15 +219,15 @@ def register_command(cli, spec):
                 return dispatch(spec, {})
         case {'params': 'id'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {spec['noun']}")]):
+            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {thingy}")]):
                 return dispatch(spec, {'id': id})
         case {'params': 'id-o'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {spec['noun']}")] = None):
+            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {thingy}")] = None):
                 return dispatch(spec, {'id': id})
         case {'params': 'id-o_v'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {spec['noun']}")] = None,
+            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {thingy}")] = None,
                      verbose: bool = False):
                 return dispatch(spec, {'id': id, 'verbose': verbose})
         case {'params': 'repo'}:
@@ -238,19 +240,19 @@ def register_command(cli, spec):
                 return dispatch(spec, {'repo': repo})
         case {'params': 'id-o_repo-o'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {spec['noun']}")] = None,
+            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {thingy}")] = None,
                      repo: Annotated[int, Parameter(help="The repository ID")] = None):
                 return dispatch(spec, {'id': id, 'repo': repo})
         case {'params': 'id_repo-o'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
-            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {spec['noun']}")],
+            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {thingy}")],
                      repo: Annotated[int, Parameter(help="The repository ID")] = None):
                 return dispatch(spec, {'id': id, 'repo': repo})
         case {'params': 'json_id-o_repo-o'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
             def _cmd(json_file: Annotated[str,
                             Parameter(help="Filename of the JSON payload file or '-' to read from 'stdin'")] = None,
-                     id: Annotated[int, Parameter(help=f"The ID of the {spec['noun']}")] = None,
+                     id: Annotated[int, Parameter(help=f"The ID of the {thingy}")] = None,
                      repo: Annotated[int, Parameter(help="The repository ID")] = None):
                 return dispatch(spec, {'json_file': json_file, 'id': id, 'repo': repo})
 
