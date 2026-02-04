@@ -14,7 +14,7 @@ def create(barcode, ctype, indicator, profile, repo, json_out):
     if profile:
         top_container_json['container_profile'] = {"ref": f"/container_profiles/{profile}"}
 
-    out = config.client.post(f'/repositories/{repo}/top_containers', json=top_container_json)
+    out = config.safe_post(f'/repositories/{repo}/top_containers', json=top_container_json)
     out_json = json.loads(out.text)
     if out_json['status'] != 'Created':
         print(json.dumps(out_json, indent=2))
@@ -26,7 +26,7 @@ def create(barcode, ctype, indicator, profile, repo, json_out):
 
 def edit(container_id, barcode, ctype, profile, repo, indicator):
     repo = config.get_default("repository", repo)
-    out = config.client.get(f'repositories/{repo}/top_containers/{container_id}')
+    out = config.safe_get(f'repositories/{repo}/top_containers/{container_id}')
     top_container_json = json.loads(out.text)
     if profile:
         top_container_json['container_profile'] = {'ref': f'/container_profiles/{profile}'}
@@ -37,7 +37,7 @@ def edit(container_id, barcode, ctype, profile, repo, indicator):
     if indicator:
         top_container_json['indicator'] = indicator
 
-    out = config.client.post(f'/repositories/{repo}/top_containers/{container_id}', json=top_container_json)
+    out = config.safe_post(f'/repositories/{repo}/top_containers/{container_id}', json=top_container_json)
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 

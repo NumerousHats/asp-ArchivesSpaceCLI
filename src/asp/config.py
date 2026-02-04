@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-import json
+import json as jsonmod
 import atexit
 
 import asnake.client.web_client
@@ -22,10 +22,10 @@ class AppConfig(object):
         self.state = {}
         try:
             with open(self.state_file, 'r') as f:
-                self.state = json.load(f)
+                self.state = jsonmod.load(f)
         except FileNotFoundError:
             pass
-        except json.JSONDecodeError:
+        except jsonmod.JSONDecodeError:
             print("Error decoding JSON from file. File might be corrupted.", file=sys.stderr)
 
         if 'token' in self.state:
@@ -62,7 +62,7 @@ class AppConfig(object):
         def save_state():
             try:
                 with open(self.state_file, 'w') as f:
-                    json.dump(self.state, f, indent=2)
+                    jsonmod.dump(self.state, f, indent=2)
             except IOError as e:
                 print(f"Error saving state: {e}", file=sys.stderr)
 
@@ -84,6 +84,40 @@ class AppConfig(object):
                 sys.exit(1)
         return value
 
+    def _redo(self, api_out):
+        if api_out.status_code == 412:
+            try:
+                self.client = ASnakeClient()
+                self.client.authorize()
+            except asnake.client.web_client.ASnakeAuthError:
+                print("Failed to authenticate with the ArchivesSpace API. Please check your '.achivessnake.yml' file.",
+                      file=sys.stderr)
+                sys.exit(1)
+            self.state['token'] = self.client.session.headers[self.client.config['session_header_name']]
+            return True
+        elif api_out.status_code >= 400:
+            print(f'API call failed: {api_out.text}', file=sys.stderr)
+            exit(1)
+
+        if api_out.status_code != 200:
+            print(f'API problem: {api_out.text}', file=sys.stderr)
+            exit(1)
+
+        if api_out.status_code == 200:
+            return False
+
+    def safe_get(self, endpoint):
+        out = self.client.get(endpoint)
+        if self._redo(out):
+            out = self.client.get(endpoint)
+        return out
+
+    def safe_post(self, endpoint, json):
+        out = self.client.post(endpoint, json=json)
+        if self._redo(out):
+            out = self.client.post(endpoint, json=json)
+        return out
+
 
 config = AppConfig()
 
@@ -93,8 +127,8 @@ def simple_get(endpoint, id, repo):
         repo = config.get_default("repository", repo)
     if 'resource' in endpoint:
         id = config.get_default("resource", id)
-    out = config.client.get(endpoint.format(id=id, repo=repo))
-    return json.loads(out.text)
+    out = config.safe_get(endpoint.format(id=id, repo=repo))
+    return jsonmod.loads(out.text)
 
 
 def simple_post(new_json, endpoint, id, repo):
@@ -104,20 +138,20 @@ def simple_post(new_json, endpoint, id, repo):
         id = config.get_default("resource", id)
 
     if new_json is None or new_json == '-':
-        new_json = json.load(sys.stdin)
+        new_json = jsonmod.load(sys.stdin)
     else:
         try:
             with open(new_json, 'r') as f:
-                new_json = json.load(f)
+                new_json = jsonmod.load(f)
         except FileNotFoundError:
             print("Note JSON file not found", file=sys.stderr)
             exit(1)
-        except json.JSONDecodeError:
+        except jsonmod.JSONDecodeError:
             print("Error decoding JSON from file. File might be corrupted.", file=sys.stderr)
             exit(1)
     if 'repository' in endpoint:
         repo = config.get_default("repository", repo)
     if 'resource' in endpoint:
         id = config.get_default("resource", id)
-    out = config.client.post(endpoint.format(id=id, repo=repo), json=new_json)
-    return json.loads(out.text)
+    out = config.safe_post(endpoint.format(id=id, repo=repo), json=new_json)
+    return jsonmod.loads(out.text)

@@ -32,7 +32,7 @@ def add_notes(note_file, id, repo, publish):
     repo = config.get_default("repository", repo)
     id = config.get_default("resource", id)
 
-    resource = config.client.get(f'repositories/{repo}/resources/{id}')
+    resource = config.safe_get(f'repositories/{repo}/resources/{id}')
     resource_json = json.loads(resource.text)
 
     for note_info in input_json:
@@ -62,9 +62,12 @@ def add_notes(note_file, id, repo, publish):
         else:
             del note_json["label"]
 
-        resource_json["notes"].append(note_json)
+        if 'notes' in resource_json:
+            resource_json["notes"].append(note_json)
+        else:
+            resource_json["notes"] = [note_json]
 
-    out = config.client.post(f'repositories/{repo}/resources/{id}', json=resource_json)
+    out = config.safe_post(f'repositories/{repo}/resources/{id}', json=resource_json)
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 
@@ -113,14 +116,14 @@ def add_instance(container_id, object_id, repo, itype, to_resource, type2, indic
     else:
         endpoint = "archival_objects"
 
-    out = config.client.get(f'repositories/{repo}/{endpoint}/{object_id}')
+    out = config.safe_get(f'repositories/{repo}/{endpoint}/{object_id}')
     out_json = json.loads(out.text)
     if out_json.get('instances') and type(out_json['instances']) is list:
         out_json['instances'].append(instance_json)
     else:
         out_json['instances'] = [instance_json]
 
-    out = config.client.post(f'/repositories/{repo}/{endpoint}/{object_id}', json=out_json)
+    out = config.safe_post(f'/repositories/{repo}/{endpoint}/{object_id}', json=out_json)
     out_json = json.loads(out.text)
     print(json.dumps(out_json, indent=2))
 

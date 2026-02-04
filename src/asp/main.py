@@ -62,7 +62,7 @@ def dispatch(spec, parameters):
             config.set_default(spec['noun2'], parameters['id'])
         return
     if spec['command'] == 'container-profile-list':
-        profiles = config.client.get_paged("container_profiles")
+        profiles = config.client.get_paged("container_profiles")  # TODO need to make safe wrt 'session_gone'
         for profile in profiles:
             print(f'{profile["uri"]}\t{profile["display_string"]}')
         return
@@ -104,7 +104,7 @@ def dispatch(spec, parameters):
 def register_command(cli, spec):
     nouns = filter(None, [spec['noun'], spec['noun2']])
     cli_command = cli.mapping['-'.join(nouns)]
-    thingy = cli.mapping[' '.join(nouns)]
+    thingy = ' '.join(nouns)
     spec['command'] = '-'.join(filter(None, [spec['noun'], spec['noun2'], spec['verb']]))
 
     match spec:
