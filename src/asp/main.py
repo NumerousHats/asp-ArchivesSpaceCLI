@@ -29,7 +29,8 @@ class Cli(object):
                                                             "attached to a resource"))
         self.repo_cmd = self.app.command(App(name="repository", help="List or get info about repositories"))
         self.enum_cmd = self.app.command(App(name="enumeration",
-                                             help="Create, modify, and get info about enumeration lists"))
+                                             help="Create, modify, and get info about enumerations"))
+        self.enum_value_cmd = self.enum_cmd.command(App(name="value", help="Get or update enumeration value"))
         self.cache_cmd = self.app.command(App(name="cache", help="Set or clear persistent tokens and default values"))
         self.cache_all_cmd = self.cache_cmd.command(App(name="all",
                                                         help="Clear all persistent data"))
@@ -41,7 +42,8 @@ class Cli(object):
                                                           help="Clear the API authentication token"))
 
         self.mapping = {'container': self.container_cmd, 'resource': self.resource_cmd, 'repository': self.repo_cmd,
-                        'enumeration': self.enum_cmd, 'cache': self.cache_cmd, 'resource-instance': self.instance_cmd,
+                        'enumeration': self.enum_cmd, 'enumeration-value': self.enum_value_cmd,
+                        'cache': self.cache_cmd, 'resource-instance': self.instance_cmd,
                         'resource-notes': self.notes_cmd, 'container-profile': self.profile_cmd,
                         'cache-all': self.cache_all_cmd, 'cache-resource': self.cache_resource_cmd,
                         'cache-repository': self.cache_repo_cmd, 'cache-token': self.cache_token_cmd}
@@ -78,6 +80,17 @@ def dispatch(spec, parameters):
     if spec['command'] == 'container-edit':
         containers.edit(**parameters)
         return
+    if spec['command'] == 'enumeration-value-suppress':
+        # note that this will allow you to suppress values even if there are items that use this enumeration value
+        out_json = appconfig.simple_get("config/enumeration_values/{id}", parameters["id"], None)
+        if out_json['suppressed']:
+            new_state = "false"
+        else:
+            new_state = "true"
+        out_json = appconfig.simple_post(None,
+                                         f"/config/enumeration_values/{{id}}/suppressed?suppressed={new_state}",
+                                         parameters["id"], None)
+        print(json.dumps(out_json, indent=2))
     if spec['endpoint'] is not None:
         if 'id' not in parameters:
             parameters['id'] = None
@@ -91,10 +104,17 @@ def dispatch(spec, parameters):
                 repos = [f"{out_json[i]['uri']} {out_json[i]['display_string']}" for i in range(len(out_json))]
                 print("\n".join(repos))
             elif spec['command'] == 'enumeration-get':
-                print("\n".join(out_json['values']))
+                if parameters['verbose']:
+                    print(json.dumps(out_json, indent=2))
+                else:
+                    enum_values = out_json['enumeration_values']
+                    enums = [f"{enum_values[i]['id']}\t{enum_values[i]['value']}" for i in range(len(enum_values))]
+                    print("\n".join(enums))
             else:
                 print(json.dumps(out_json, indent=2))
         if spec['method'] == "post":
+            if 'json' not in parameters:
+                parameters['json_file'] = None
             out_json = appconfig.simple_post(parameters["json_file"], spec["endpoint"], parameters["id"],
                                              parameters["repo"])
             print(json.dumps(out_json, indent=2))
@@ -221,6 +241,11 @@ def register_command(cli, spec):
             @cli_command.command(name=spec["verb"], help=spec["help"])
             def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {thingy}")]):
                 return dispatch(spec, {'id': id})
+        case {'params': 'id_v'}:
+            @cli_command.command(name=spec["verb"], help=spec["help"])
+            def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {thingy}")],
+                     verbose: bool = False):
+                return dispatch(spec, {'id': id, 'verbose': verbose})
         case {'params': 'id-o'}:
             @cli_command.command(name=spec["verb"], help=spec["help"])
             def _cmd(id: Annotated[int, Parameter(help=f"The ID of the {thingy}")] = None):
@@ -277,8 +302,11 @@ COMMANDS = [
      "params": None, "endpoint": "repositories", "method": "get", "output": None,
      "help": "List all repositories."},
     {"noun": "enumeration", "noun2": None, "verb": "get",
-     "params": "id", "endpoint": "config/enumerations/{id}", "method": "get", "output": None,
+     "params": "id_v", "endpoint": "config/enumerations/{id}", "method": "get", "output": None,
      "help": "Get values in an enumeration list"},
+    {"noun": "enumeration", "noun2": "value", "verb": "suppress",
+     "params": "id", "endpoint": None, "method": None, "output": None,
+     "help": "Toggle the suppression state of the enumeration value specified by --id"},
     {"noun": "container", "noun2": None, "verb": "create",
      "params": "cont_create", "endpoint": None, "method": None, "output": None,
      "help": "Create a container. Returns the container identifier of the newly-created container, "

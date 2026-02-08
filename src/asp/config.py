@@ -137,9 +137,9 @@ def simple_post(new_json, endpoint, id, repo):
     if 'resource' in endpoint:
         id = config.get_default("resource", id)
 
-    if new_json is None or new_json == '-':
+    if new_json == '-':
         new_json = jsonmod.load(sys.stdin)
-    else:
+    elif new_json:  # i.e. a payload file has been specified
         try:
             with open(new_json, 'r') as f:
                 new_json = jsonmod.load(f)
@@ -149,9 +149,5 @@ def simple_post(new_json, endpoint, id, repo):
         except jsonmod.JSONDecodeError:
             print("Error decoding JSON from file. File might be corrupted.", file=sys.stderr)
             exit(1)
-    if 'repository' in endpoint:
-        repo = config.get_default("repository", repo)
-    if 'resource' in endpoint:
-        id = config.get_default("resource", id)
     out = config.safe_post(endpoint.format(id=id, repo=repo), json=new_json)
     return jsonmod.loads(out.text)
