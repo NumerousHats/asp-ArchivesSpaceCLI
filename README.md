@@ -62,8 +62,9 @@ The following commands are currently implemented:
     It currently supports only single sub-notes.
 - `asp resource instance add` Add an existing container as a container instance to a resource or archival object
 
-#### Enums
+#### Enumerations
 - `asp enumeration get` Get a list of all values in the specified enumeration
+- `asp enumeration value suppress` Toggle the suppression state of the enumeration value specified by `--id`
 
 #### CLI configuration
 - `asp cache (all|epository|resource|token) clear`
