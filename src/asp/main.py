@@ -40,14 +40,15 @@ class Cli(object):
                                                          help="Set or clear default repository"))
         self.cache_token_cmd = self.cache_cmd.command(App(name="token",
                                                           help="Clear the API authentication token"))
+        self.ao_cmd = self.app.command(App(name="ao", help="Modify or delete archival object(s)"))
 
         self.mapping = {'container': self.container_cmd, 'resource': self.resource_cmd, 'repository': self.repo_cmd,
                         'enumeration': self.enum_cmd, 'enumeration-value': self.enum_value_cmd,
                         'cache': self.cache_cmd, 'resource-instance': self.instance_cmd,
                         'resource-notes': self.notes_cmd, 'container-profile': self.profile_cmd,
                         'cache-all': self.cache_all_cmd, 'cache-resource': self.cache_resource_cmd,
-                        'cache-repository': self.cache_repo_cmd, 'cache-token': self.cache_token_cmd}
-
+                        'cache-repository': self.cache_repo_cmd, 'cache-token': self.cache_token_cmd,
+                        'ao': self.ao_cmd}
 
 def dispatch(spec, parameters):
     """
@@ -91,6 +92,16 @@ def dispatch(spec, parameters):
                                          f"/config/enumeration_values/{{id}}/suppressed?suppressed={new_state}",
                                          parameters["id"], None)
         print(json.dumps(out_json, indent=2))
+    if spec['command'] == 'ao-delete':
+        if parameters['end']:
+            for ao_id in range(parameters['start'], parameters['end']+1):
+                out_json = appconfig.simple_delete("/repositories/{repo}/archival_objects/{id}", ao_id,
+                                                   parameters['repo'])
+                print(json.dumps(out_json, indent=2))
+        else:
+            out_json = appconfig.simple_delete("/repositories/{repo}/archival_objects/{id}",
+                                               parameters['start'], parameters['repo'])
+            print(json.dumps(out_json, indent=2))
     if spec['endpoint'] is not None:
         if 'id' not in parameters:
             parameters['id'] = None
@@ -231,6 +242,26 @@ def register_command(cli, spec):
                 args = locals()
                 del args['spec']
                 return dispatch(spec, args)
+        case {'noun': 'ao', 'noun2': None, 'verb': 'delete'}:
+            @cli_command.command(name=spec["verb"])
+            def _cmd(start: int, end: int | None = None, repo: int | None = None):
+                """Delete an archival object or a range of archival objects with sequential identifiers.
+                The latter may be useful if many AOs were erroneously created by a spreadsheet importer.
+
+                Parameters
+                ----------
+                start: int
+                    The starting identifier number of the archival object to delete.
+                end: int | None
+                    The identifier number of the final archival object to delete. All archival objects with identifier
+                    numbers from 'start' to 'end' (inclusively) will be deleted. If None, then only the AO corresponding
+                     to 'start' will be deleted.
+                repo: int
+                    The repository ID number.
+                """
+                args = locals()
+                del args['spec']
+                return dispatch(spec, args)
 
         # generic signatures
         case {'params': None}:
@@ -337,7 +368,10 @@ COMMANDS = [
      "help": "Clear the default resource ID."},
     {"noun": "cache", "noun2": "token", "verb": "clear",
      "params": None, "endpoint": None, "method": None, "output": None,
-     "help": "Clear the ArchivesSpace authentication token."}
+     "help": "Clear the ArchivesSpace authentication token."},
+    {"noun": "ao", "noun2": None, "verb": "delete",
+         "params": None, "endpoint": None, "method": None, "output": None,
+         "help": "Delete one or more archival objects."}
 ]
 
 cli = Cli()

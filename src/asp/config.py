@@ -118,6 +118,12 @@ class AppConfig(object):
             out = self.client.post(endpoint, json=json)
         return out
 
+    def safe_delete(self, endpoint):
+        out = self.client.delete(endpoint)
+        if self._redo(out):
+            out = self.client.delete(endpoint)
+        return out
+
 
 config = AppConfig()
 
@@ -150,4 +156,13 @@ def simple_post(new_json, endpoint, id, repo):
             print("Error decoding JSON from file. File might be corrupted.", file=sys.stderr)
             exit(1)
     out = config.safe_post(endpoint.format(id=id, repo=repo), json=new_json)
+    return jsonmod.loads(out.text)
+
+
+def simple_delete(endpoint, id, repo):
+    if '{repo}' in endpoint:
+        repo = config.get_default("repository", repo)
+    if 'resource' in endpoint:
+        id = config.get_default("resource", id)
+    out = config.safe_delete(endpoint.format(id=id, repo=repo))
     return jsonmod.loads(out.text)
