@@ -61,6 +61,7 @@ The following commands are currently implemented:
     ```
     It currently supports only single sub-notes.
 - `asp resource instance add` Add an existing container as a container instance to a resource or archival object
+- `asp ao delete` Delete an archival object or a range of archival objects with sequential identifiers
 
 #### Enumerations
 - `asp enumeration get` Get a list of all values in the specified enumeration
